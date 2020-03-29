@@ -41,8 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',
+    #installed apps for django
     'file_upload.apps.FileUploadConfig',
+	'users.apps.UsersConfig',
+
+     #rest API implementation library for django
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +89,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 
 
 # Password validation
