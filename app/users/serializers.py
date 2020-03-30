@@ -1,5 +1,6 @@
 #django 
 from django.contrib.auth.models import User
+from django.contrib.auth import password_validation
 
 #django rest_framework 
 from rest_framework import serializers
@@ -9,11 +10,11 @@ from rest_framework.validators import UniqueValidator
 import re
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    first_name =  serializers.CharField()
-    last_name =  serializers.CharField()
-    email = serializers.EmailField()
-    password = serializers.CharField()
+    username = serializers.CharField(required=True)
+    first_name =  serializers.CharField(required=True)
+    last_name =  serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
 
     def create(self, validated_data):
         user, created = User.objects.get_or_create(username=validated_data['username'], email=validated_data['email'],
@@ -24,8 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        instance.username = validated_data.get('username', instance.username)
+
+        for key, value in validated_data:
+            instance.key = validated_data.get(key, instance.key)
         instance.save()
+
         return instance
 
     class Meta:
@@ -57,8 +61,14 @@ class RegisterSerializer(serializers.Serializer):
     # def validate_password(self, password):
     #     if not re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', password):
     #         raise serializers.ValidationError("User password should have minimum 8 characters")
+    #         rasise serializers.ValidationError("User password should conatain at least one symbole")
 
     def validate(self, data):
         if data.get('password') != data.get('confirm_password'):
             raise serializers.ValidationError("Passwords doesn't match")
         return data
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)

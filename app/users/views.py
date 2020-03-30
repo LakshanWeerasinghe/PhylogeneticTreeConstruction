@@ -1,31 +1,82 @@
+#django
 from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+
+#rest framework
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
-from django.contrib.auth.models import User
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
-from .serializers import UserSerializer, RegisterSerializer
+#other
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 
-# Create your views here.
-class RegisterView(APIView):
+@api_view(["POST"])
+def registration_view(request):
+    new_user = request.data
+    register_serilalizer = RegisterSerializer(data=new_user)
 
-    serializer_class = UserSerializer
-    permission_classes = []
-
-    def post(self, request):
-
-        new_user = request.data
-        register_serilalizer = RegisterSerializer(data=new_user)
+    #validate the payload of the request
+    if register_serilalizer.is_valid():
+        user_serializer = UserSerializer(data=new_user)
         
-        if register_serilalizer.is_valid():
-            user_serializer = UserSerializer(data=new_user)
-            if user_serializer.is_valid():
-                user_serializer.save()
-                return Response(user_serializer.data, status=HTTP_201_CREATED)
-            else:
-                return Response(user_serializer.data, status=HTTP_400_BAD_REQUEST)
+        if user_serializer.is_valid():
+
+            user =user_serializer.save()
+            response = get_authentication_response(user)
+            return Response(response, status=HTTP_201_CREATED)
         else:
-            return Response(register_serilalizer.errors, status=HTTP_400_BAD_REQUEST)
+            return Response(user_serializer.data, status=HTTP_400_BAD_REQUEST)
+    else:
+        return Response(register_serilalizer.errors, status=HTTP_400_BAD_REQUEST)
 
-        
+
+@api_view(["POST"])
+def login_view(request):
+
+    login_serializer = LoginSerializer(data=request.data)
+    if login_serializer.is_valid():
+        username = request.data['username']
+        password = request.data['password']
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            response = get_authentication_response(user)
+            return Response(response, status=HTTP_200_OK)
+        else:
+            return Response({"error" : "wrong credentials"}, status=HTTP_400_BAD_REQUEST)
+    else:
+        return Response(login_serializer.errors, status=HTTP_400_BAD_REQUEST)
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    request.user.auth_token.delete()
+    response = {
+        "message" : "Successfully Loggedout"
+    }
+    return Response(response, status=HTTP_200_OK)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def update_user_details_view(request):
+    return Response()
+
+def get_authentication_response(user):
+    token, created = Token.objects.get_or_create(user=user)
+    return { 'token' : token.key }
+
+
+class HomeView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response("Authentication Suceessfull")
+
 
