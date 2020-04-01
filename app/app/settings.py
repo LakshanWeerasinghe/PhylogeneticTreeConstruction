@@ -32,7 +32,7 @@ SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
