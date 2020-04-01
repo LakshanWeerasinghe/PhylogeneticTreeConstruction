@@ -105,14 +105,12 @@ DATABASES = {
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
 
-    # 'default': {
-    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-    #     'NAME' : 'dna_tree',
-    #     'USER' : 'lakshan',
-    #     'PASSWORD' : 'lakshan',
-    #     'HOST' : 'localhost',
-    #     'PORT' : '',
-    # }
+    'default': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME' : 'dna_tree',
+        'USER' : 'lakshan',
+        'PASSWORD' : 'lakshan'
+    }
 }
 
 REST_FRAMEWORK = {
@@ -165,4 +163,4 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 
 db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'].update(db_from_env)
+DATABASES['default'] = dj_database_url.config()
