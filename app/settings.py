@@ -110,6 +110,8 @@ DATABASES = {
         'NAME' : 'dna_tree',
         'USER' : 'lakshan',
         'PASSWORD' : 'lakshan'
+        # 'HOST' : 'localhost',
+        # 'PORT' : ''
     }
 }
 
