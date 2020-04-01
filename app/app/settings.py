@@ -14,8 +14,7 @@ import os
 
 # Heroku: Update database configuration from $DATABASE_URL. 
 import dj_database_url 
-db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'].update(db_from_env)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -106,14 +105,14 @@ DATABASES = {
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
 
-    'default': {
-        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME' : 'dna_tree',
-        'USER' : 'lakshan',
-        'PASSWORD' : 'lakshan',
-        'HOST' : 'localhost',
-        'PORT' : '',
-    }
+    # 'default': {
+    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+    #     'NAME' : 'dna_tree',
+    #     'USER' : 'lakshan',
+    #     'PASSWORD' : 'lakshan',
+    #     'HOST' : 'localhost',
+    #     'PORT' : '',
+    # }
 }
 
 REST_FRAMEWORK = {
@@ -165,3 +164,5 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+db_from_env = dj_database_url.config(conn_max_age=500) 
+DATABASES['default'].update(db_from_env)
