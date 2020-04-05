@@ -43,7 +43,7 @@ def login_view(request):
         password = request.data['password']
 
         user = authenticate(username=username, password=password)
-
+        print("user")
         if user is not None:
             response = get_authentication_response(user)
             return Response(response, status=HTTP_200_OK)

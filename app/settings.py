@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     #installed apps for django
     'file_upload.apps.FileUploadConfig',
 	'users.apps.UsersConfig',
+    'dna_storage.apps.DnaStorageConfig',
 
      #rest API implementation library for django
     'rest_framework',
@@ -109,9 +110,9 @@ DATABASES = {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME' : 'dna_tree',
         'USER' : 'lakshan',
-        'PASSWORD' : 'lakshan'
-        # 'HOST' : 'localhost',
-        # 'PORT' : ''
+        'PASSWORD' : 'lakshan',
+        'HOST' : 'localhost',
+        'PORT' : '5432'
     }
 }
 
@@ -164,5 +165,12 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'] = dj_database_url.config()
+# db_from_env = dj_database_url.config(conn_max_age=500) 
+# DATABASES['default'] = dj_database_url.config()
+
+
+#AWS S3 storage configurations
+
+AWS_ACCESS_KEY_ID = 'AKIA35HYTNT635SBY2CI'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'dnabank'
