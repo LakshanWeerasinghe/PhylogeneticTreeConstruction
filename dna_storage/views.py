@@ -1,5 +1,6 @@
 #django
 from django.shortcuts import render
+from django.contrib.auth.models import User
 
 #rest framework
 from rest_framework.decorators import api_view, permission_classes
@@ -9,10 +10,12 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 #other
 from .services import create_preassinged_url
+from .models import Directory, DNAFile
+from .serializers import DNAFileSerializer, DNAFileUploadedSerializer
 
 
 # Todo
-# 1. give the aws s3 url to upload the dna sequences
+# 1. give the aws s3 url to upload the dna sequences - Done
 # 2. get the file deatils of the uploaded files
 # 3. give the default storage files
 # 4. view users own storage details
@@ -20,30 +23,52 @@ from .services import create_preassinged_url
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def get_dna_sequence_upload_url(request):
+def get_dna_sequence_upload_url_view(request):
 
-    user = request.user
+    data = request.data
 
-    #query from the db to get the url
-    #serve the url
+    user = User.objects.get(username=request.user)
+    directory = Directory.objects.get(user=user)
 
-    object_name =  request.data['object_name']
-    url = create_preassinged_url(object_name)
+    directory_name = getattr(directory, 'name')
+    data["directory"] = getattr(directory, 'id')
 
-    if url is None :
-        return Response("Error Occord", status=HTTP_400_BAD_REQUEST)
+    dna_file_serializer = DNAFileSerializer(data=data)
 
-    return Response(url, status=HTTP_200_OK)
+    if dna_file_serializer.is_valid():
+
+        url = create_preassinged_url(directory_name=directory_name, object_name=data['object_key'])
+
+        if not url is None:
+            dna_file_serializer.save()
+
+            return Response({"url" : url}, status=HTTP_200_OK)
+    else:
+        return Response(dna_file_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def post_dna_file_details(request):
+def dna_file_uploaded_view(request):
 
-    #user
-    #update db with the users dna storage
-    #return the response
+    data = request.data
 
-    return Response(status=HTTP_200_OK)
+    dna_file_uploaded_serializer = DNAFileUploadedSerializer(data=data)
+
+    if dna_file_uploaded_serializer.is_valid():
+
+        file_name=data['file_name']
+        dna_file_instance = DNAFile.objects.get(file_name=file_name)
+
+        if data['is_uploaded'] == 1:
+
+            dna_file_instance.is_available = True
+            dna_file_instance.save()
+        else:
+            dna_file_instance.delete()
+            
+        return Response(status=HTTP_200_OK)
+    else:
+        Response(dna_file_uploaded_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

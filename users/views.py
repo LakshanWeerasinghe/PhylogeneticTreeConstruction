@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 #other
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from .services import create_directory_for_user
 
 @api_view(["POST"])
 def registration_view(request):
@@ -22,10 +23,14 @@ def registration_view(request):
     #validate the payload of the request
     if register_serilalizer.is_valid():
         user_serializer = UserSerializer(data=new_user)
-        
+        print(user_serializer)
         if user_serializer.is_valid():
 
             user =user_serializer.save()
+
+            #save the diractory name for the user'
+            create_directory_for_user(user, new_user['username'])
+
             response = get_authentication_response(user)
             return Response(response, status=HTTP_201_CREATED)
         else:

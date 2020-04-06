@@ -56,6 +56,9 @@ class RegisterSerializer(serializers.Serializer):
         user = User.objects.filter(username = username)
         if user.exists():
             raise serializers.ValidationError("username already exists!")
+
+        if not re.match(r'[a-z0-9]*$', username):
+            raise serializers.ValidationError("User should only have lower case leters and numbers.")
         return username
     
     # def validate_password(self, password):

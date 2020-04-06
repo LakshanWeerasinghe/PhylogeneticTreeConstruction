@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_dna_sequence_upload_url
+from .views import get_dna_sequence_upload_url_view, dna_file_uploaded_view
 
 """
     url patterns are :
@@ -8,5 +8,6 @@ from .views import get_dna_sequence_upload_url
 """
 
 urlpatterns = [
-    path('upload/', get_dna_sequence_upload_url, name='upload'),
+    path('upload/', get_dna_sequence_upload_url_view, name='upload'),
+    path('updateStatus/', dna_file_uploaded_view, name="updateStatus")
 ]
