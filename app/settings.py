@@ -34,7 +34,7 @@ SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 DEBUG = False
 
 #These are the hosts that the server can run
-ALLOWED_HOSTS = ['*','dna-phylogenetic-tree.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['dna-phylogenetic-tree.herokuapp.com', '127.0.0.1', 'localhost']
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -130,8 +130,8 @@ DATABASES = {
 }
 
 
-db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'] = dj_database_url.config()
+# db_from_env = dj_database_url.config(conn_max_age=500) 
+# DATABASES['default'] = dj_database_url.config()
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -192,4 +192,4 @@ AWS_SECRET_ACCESS_KEY = 'yKzXU4CKaofRNpO27QcS8O+LZTH/+K/lX2xqQ6su'
 AWS_STORAGE_BUCKET_NAME = 'dnabank'
 
 
-# django_heroku.settings(locals())
+django_heroku.settings(locals())
