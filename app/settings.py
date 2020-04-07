@@ -192,4 +192,4 @@ AWS_SECRET_ACCESS_KEY = 'yKzXU4CKaofRNpO27QcS8O+LZTH/+K/lX2xqQ6su'
 AWS_STORAGE_BUCKET_NAME = 'dnabank'
 
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
