@@ -179,7 +179,6 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 STATIC_URL = '/static/'
 
-
 #cors configuration
 
 CORS_ORIGIN_ALLOW_ALL = True
