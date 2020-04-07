@@ -1,11 +1,7 @@
 boto3==1.12.34
 botocore==1.15.34
 dj-database-url==0.5.0
-<<<<<<< HEAD
 Django==3.0.3
-=======
-Django==3.0
->>>>>>> da31e62521216f3f0603d312db0f1160074481ec
 django-cors-headers==3.2.1
 django-heroku==0.3.1
 djangorestframework==3.10.3
