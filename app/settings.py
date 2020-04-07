@@ -105,10 +105,10 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 
     # 'default': {
     #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
@@ -119,19 +119,19 @@ DATABASES = {
     #     'PORT' : '5432'
     # }
 
-    'default' : {
-        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME' : 'd98geavavihpqd',
-        'USER' : 'ysajeooocpckna',
-        'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
-        'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
-        'PORT' : '5432',
-    }
+    # 'default' : {
+    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+    #     'NAME' : 'd98geavavihpqd',
+    #     'USER' : 'ysajeooocpckna',
+    #     'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
+    #     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
+    #     'PORT' : '5432',
+    # }
 }
 
 
-db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'] = dj_database_url.config()
+# db_from_env = dj_database_url.config(conn_max_age=500) 
+# DATABASES['default'] = dj_database_url.config()
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
