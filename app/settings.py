@@ -30,7 +30,7 @@ CUSTOM_STORAGE_OPTIONS = os.path.dirname(os.path.dirname(os.path.abspath(__file_
 SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #These are the hosts that the server can run
 ALLOWED_HOSTS = ['dna-phylogenetic-tree.herokuapp.com', '127.0.0.1', 'localhost']
