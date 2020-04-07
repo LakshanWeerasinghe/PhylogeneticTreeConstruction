@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import django_heroku
 
 # Heroku: Update database configuration from $DATABASE_URL. 
 import dj_database_url 
@@ -189,3 +190,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 AWS_ACCESS_KEY_ID = 'AKIA35HYTNT635SBY2CI'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'dnabank'
+
+
+django_heroku.settings(locals())
