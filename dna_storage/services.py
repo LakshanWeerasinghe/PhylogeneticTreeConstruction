@@ -55,6 +55,15 @@ def create_preassinged_url(directory_name, object_name, expiration=3600):
 
 
 
-def download_files_from_bucket():
-    pass
+def download_files_from_bucket(bucket_name, object_name, file_name): 
+    #object_name - file name in the bucket, file_name - path to download and the file name to save
+    
+    s3_client = get_s3_client()
+    try:
+        s3_client.download_file(bucket_name,object_name,file_name)   #Download to root directory
+    except ClientError as e:
+        if e.response['Error']['Code']=='404':
+            print ("Object not found")
+        else:
+            raise
 
