@@ -20,14 +20,15 @@ from django.conf import settings
 
 
 urlpatterns = [
-    
+
     path('admin/', admin.site.urls),
 
     path('file_system/', include('file_upload.urls')),
 
     path('users/', include('users.urls')),
-    
-    path('dnaStorage/', include('dna_storage.urls'))
+
+    path('dnaStorage/', include('dna_storage.urls')),
+
+    path('cluster/', include('cluster.urls'))
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
