@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 #other
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
-from .services import create_directory_for_user
+from .services import create_directory_for_user, get_user_login_response
 
 @api_view(["POST"])
 def registration_view(request):
@@ -23,15 +23,14 @@ def registration_view(request):
     #validate the payload of the request
     if register_serilalizer.is_valid():
         user_serializer = UserSerializer(data=new_user)
-        print(user_serializer)
         if user_serializer.is_valid():
 
-            user =user_serializer.save()
+            user = user_serializer.save()
 
-            #save the diractory name for the user'
+            #save the diractory name for the user
             create_directory_for_user(user, new_user['username'])
 
-            response = get_authentication_response(user)
+            response = get_user_login_response(user)
             return Response(response, status=HTTP_201_CREATED)
         else:
             return Response(user_serializer.data, status=HTTP_400_BAD_REQUEST)
@@ -48,9 +47,8 @@ def login_view(request):
         password = request.data['password']
 
         user = authenticate(username=username, password=password)
-        print("user")
         if user is not None:
-            response = get_authentication_response(user)
+            response = get_user_login_response(user)
             return Response(response, status=HTTP_200_OK)
         else:
             return Response({"error" : "wrong credentials"}, status=HTTP_400_BAD_REQUEST)
@@ -71,11 +69,6 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def update_user_details_view(request):
     return Response()
-
-def get_authentication_response(user):
-    token, created = Token.objects.get_or_create(user=user)
-    return { 'token' : token.key }
-
 
 class HomeView(APIView):
 

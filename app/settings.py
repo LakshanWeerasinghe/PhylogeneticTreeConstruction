@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import django_heroku
 
 # Heroku: Update database configuration from $DATABASE_URL. 
 import dj_database_url 
@@ -30,12 +31,12 @@ CUSTOM_STORAGE_OPTIONS = os.path.dirname(os.path.dirname(os.path.abspath(__file_
 SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+#These are the hosts that the server can run
+ALLOWED_HOSTS = ['dna-phylogenetic-tree.herokuapp.com', '127.0.0.1', 'localhost']
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 # Application definition
 
@@ -71,6 +72,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
 
+    #WhiteNoise
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     #csrf
     'django.middleware.csrf.CsrfViewMiddleware',
 
@@ -101,20 +105,33 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+    #     'NAME' : 'dna_tree',
+    #     'USER' : 'lakshan',
+    #     'PASSWORD' : 'lakshan',
+    #     'HOST' : 'localhost',
+    #     'PORT' : ''
     # }
 
-    'default': {
-        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME' : 'dna_tree',
-        'USER' : 'lakshan',
-        'PASSWORD' : 'lakshan',
-        'HOST' : 'localhost',
-        'PORT' : '5432'
-    }
+    # 'default' : {
+    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+    #     'NAME' : 'd98geavavihpqd',
+    #     'USER' : 'ysajeooocpckna',
+    #     'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
+    #     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
+    #     'PORT' : '5432',
+    # }
 }
+
+
+db_from_env = dj_database_url.config(conn_max_age=500) 
+DATABASES['default'] = dj_database_url.config()
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -158,6 +175,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+
 STATIC_URL = '/static/'
 
 
@@ -165,12 +184,12 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# db_from_env = dj_database_url.config(conn_max_age=500) 
-# DATABASES['default'] = dj_database_url.config()
-
 
 #AWS S3 storage configurations
 
 AWS_ACCESS_KEY_ID = 'AKIA35HYTNT635SBY2CI'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'dnabank'
+
+
+django_heroku.settings(locals())
