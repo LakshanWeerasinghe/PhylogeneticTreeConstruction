@@ -81,8 +81,8 @@ def get_dna_bank_files(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_users_dna_file_details(request):
-
-    #user
-    #query from db and return the responses
-
+    data = request.data
+    list_all_file_names_from_bucket(data['bucket_name'])   # need to give the bucket name
     return Response(status=HTTP_200_OK)
+
+    

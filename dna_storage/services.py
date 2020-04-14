@@ -1,5 +1,6 @@
 import logging
 import boto3
+from boto3 import client
 from botocore.exceptions import ClientError
 from botocore.client import Config
 
@@ -67,3 +68,17 @@ def download_files_from_bucket(bucket_name, object_name, file_name):
         else:
             raise
 
+def list_all_file_names_from_bucket (bucket_name):
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_name)
+    exists = True
+    try:
+        s3.meta.client.head_bucket(Bucket=bucket_name)
+    except ClientError as e:
+        # If it was a 404 error, then the bucket does not exist.
+        error_code = e.response['Error']['Code']
+        if error_code == '404':
+            exists = False
+
+        for item in bucket.objects.all():
+            print(item.file_name)
