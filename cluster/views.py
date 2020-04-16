@@ -1,6 +1,9 @@
 # dajnago
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core import serializers
+from django.forms.models import model_to_dict
+
 
 # rest framework
 from rest_framework.response import Response
@@ -10,10 +13,18 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_IN
 
 # models
 from dna_storage.models import DNAFile, Directory
-from .models import Process
+from .models import Process, Result, TreeResult
+
+# serializers
+from .serializers import MatrixResultRequestSerializer, TreeResultRequestSerializer
+
+import json
 
 # tasks
-from .tasks import generate_distance_matrix_using_lsh_task
+from .tasks import generate_distance_matrix_using_lsh_task, generate_tree_using_lsh_kmedoid
+
+from algorithms.lsh.kmedoid_clustering_LSH import start_kemedoid
+from algorithms.distance_matrix import distanceMatrixGenerator
 
 
 @api_view(["POST"])
@@ -44,8 +55,8 @@ def generate_distance_matrix_using_lsh_view(request):
         else:
             dna_files.append(dna_file)
 
-    # crate the process and stores in the database
-    # django signals fires and generate celery task and
+    # create the process and stores in the database
+    # generate celery task and
     # add it to the RabbitMQ
     process = Process(title=title, type=1, method=1, status=1, user=user)
 
@@ -60,4 +71,92 @@ def generate_distance_matrix_using_lsh_view(request):
         print(ex)
         return Response(status=HTTP_400_BAD_REQUEST)
 
-    return Response({"id": process.id}, status=HTTP_200_OK)
+    return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_tree_using_lsh_view(request):
+
+    result_id = request.data["result_id"]
+    title = request.data["title"]
+
+    # user instance
+    user = User.objects.get(username=request.user)
+
+    # create a new process and save
+    process = Process(title=title, type=2, method=2, status=1, user=user)
+    process.save()
+
+    # add the result to the Celery
+    generate_tree_using_lsh_kmedoid.delay(
+        process_id=process.id, result_id=result_id)
+
+    return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_process_matrix_result_view(request):
+
+    process_id = request.data['process_id']
+
+    serializer = MatrixResultRequestSerializer(data=request.data)
+    if serializer.is_valid():
+        process = Process.objects.get(id=process_id)
+        result = Result.objects.get(process=process)
+        result_similarities = result.result.split("\n")
+        result_matrix = distanceMatrixGenerator(result_similarities[:-1])
+        response = {}
+
+        response["process"] = process.get_process_details_as_dict()
+        response["result_id"] = result.id
+        response["matrix"] = result_matrix
+
+        return Response(response, status=HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_process_tree_result_view(request):
+
+    process_id = request.data['process_id']
+
+    serializer = TreeResultRequestSerializer(data=request.data)
+    if serializer.is_valid():
+        process = Process.objects.get(id=process_id)
+        tree_result = TreeResult.objects.get(process=process)
+
+        response = {}
+
+        response["process"] = process.get_process_details_as_dict()
+        response["result_id"] = tree_result.id
+        response["tree"] = tree_result.tree
+
+        return Response(response, status=HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def test_view(request):
+
+    # result = Result.objects.get(id=2)
+    # result_2 = result.result.split("\n")
+
+    # final_result = start_kemedoid(result_2[:-1])
+
+    # r = distanceMatrixGenerator(result_2[:-1])
+
+    # process = Process.objects.get(id=3)
+
+    # print(process)
+    # tree = TreeResult(process=process, tree=final_result)
+    # print(tree)
+    # tree.save()
+
+    tree = TreeResult.objects.get(id=2)
+    print(tree.tree)
+    return Response(tree.tree)

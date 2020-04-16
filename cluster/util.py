@@ -11,6 +11,12 @@ class ProcessMethodTypes(IntEnum):
     def choises(cls):
         return [(key.value, key.name) for key in cls]
 
+    @classmethod
+    def get_key(cls, value):
+        for keys in cls:
+            if value == keys.value:
+                return keys.name
+
 
 class StatusTypes(IntEnum):
     PROGRESS = 1
@@ -20,6 +26,12 @@ class StatusTypes(IntEnum):
     def choises(cls):
         return [(key.value, key.name) for key in cls]
 
+    @classmethod
+    def get_key(cls, value):
+        for keys in cls:
+            if value == keys.value:
+                return keys.name
+
 
 class ProcessType(IntEnum):
     MATRIX_GENERATION = 1
@@ -28,3 +40,9 @@ class ProcessType(IntEnum):
     @classmethod
     def choises(cls):
         return [(key.value, key.name) for key in cls]
+
+    @classmethod
+    def get_key(cls, value):
+        for keys in cls:
+            if value == keys.value:
+                return keys.name

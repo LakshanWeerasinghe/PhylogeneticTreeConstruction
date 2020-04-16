@@ -9,7 +9,8 @@ import shutil
 import sys
 
 # moules
-from algorithms import lsh
+from algorithms.lsh import lsh
+from algorithms.lsh.kmedoid_clustering_LSH import start_kemedoid
 from dna_storage.models import Directory
 from dna_storage.services import download_files_from_bucket
 from app.settings import BASE_DIR
@@ -18,7 +19,7 @@ from app.settings import BASE_DIR
 from celery import shared_task
 
 # other
-from .models import Process, Result
+from .models import Process, Result, TreeResult
 from .services import create_directory, remove_directory
 
 
@@ -34,7 +35,7 @@ def generate_distance_matrix_using_lsh_task(process_id):
         5. Update the Process model
         6. Delete the processs directory
 
-    :param : process_id : string
+    :param : process_id : int
     :returns : True if not False
 
     """
@@ -94,3 +95,43 @@ def generate_distance_matrix_using_lsh_task(process_id):
     # delete the process floder
     # return True if success
     return remove_directory(path=process_directory_path)
+
+
+@shared_task
+def generate_tree_using_lsh_kmedoid(process_id, result_id):
+    """
+    This method runs as a background task of Celery workers this consist of 3 sub tasks
+        1. Get the LSH similarities from the database
+        2. Generate the Phylogenetic Tree
+        3. Save the Tree result in the database
+        4. Update the process status
+
+    :param : process_id : int (Process id of the Tree Creation Process)
+    :param : result_id : int (Result id of the LSH distance matrix Process)
+    :return : True
+
+    """
+
+    process = Process.objects.get(id=process_id)
+
+    # get the result from database
+    lsh_result = Result.objects.get(id=result_id)
+
+    # convert the string of lsh similarities into list of similarities
+    lsh_similarities = lsh_result.result.split("\n")
+
+    # remove the last element
+    lsh_similarities = lsh_similarities[:-1]
+
+    # generate the tree
+    tree_dict = start_kemedoid(lsh_similarity_result=lsh_similarities)
+
+    # save the result in the database
+    tree_result = TreeResult(process=process, tree=tree_dict)
+    tree_result.save()
+
+    # update the process status
+    process.status = 2
+    process.save()
+
+    return True
