@@ -100,6 +100,10 @@ def main(process_id, file_dict):
     global filePath
     global specyhashesFilePath
     global lshSimilarityFilePath
+    global dnaMinHashes
+    global fileNameArray
+
+    fileNameArray = []
 
     filePath = BASE_DIR + "/storage/" + str(process_id) + "/DNA_SEQUNCES/"
     specyhashesFilePath = BASE_DIR + "/storage/" + \
@@ -113,6 +117,7 @@ def main(process_id, file_dict):
 
     print(fileNameArray)
     a = []
+    dnaMinHashes = []
     for i in fileNameArray:
         a.append(LSH(i))
     for filename, minhashArray in zip(fileNameArray, a):
@@ -144,5 +149,5 @@ def main(process_id, file_dict):
             f.close()
 
     print("time for comparing = ", time.time()-comparingStartTime)
-
+    a = []
     return result_matrix

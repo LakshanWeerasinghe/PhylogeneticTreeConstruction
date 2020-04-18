@@ -20,6 +20,7 @@ def distanceMatrixGenerator(lines):
     global specieName
     global distance_matrix
 
+    specieName = []
     for i in range(0, len(lines)):
         specie_n = lines[i].split(",")[0]
         if specie_n not in specieName:

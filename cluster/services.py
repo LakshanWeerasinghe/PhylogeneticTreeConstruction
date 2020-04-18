@@ -6,6 +6,7 @@ def create_directory(path):
 
     try:
         os.makedirs(path, exist_ok=True)
+        print("Directory" + str(path) + " Created!")
     except OSError as ex:
         print(ex)
 

@@ -16,8 +16,7 @@ from dna_storage.models import DNAFile, Directory
 from .models import Process, Result, TreeResult
 
 # serializers
-from .serializers import MatrixResultRequestSerializer, TreeResultRequestSerializer
-
+from .serializers import *
 import json
 
 # tasks
@@ -81,18 +80,23 @@ def generate_tree_using_lsh_view(request):
     result_id = request.data["result_id"]
     title = request.data["title"]
 
-    # user instance
-    user = User.objects.get(username=request.user)
+    serializer = TreeCreationUsingLSHRequestSerializer(data=request.data)
 
-    # create a new process and save
-    process = Process(title=title, type=2, method=2, status=1, user=user)
-    process.save()
+    if serializer.is_valid():
+        # user instance
+        user = User.objects.get(username=request.user)
 
-    # add the result to the Celery
-    generate_tree_using_lsh_kmedoid.delay(
-        process_id=process.id, result_id=result_id)
+        # create a new process and save
+        process = Process(title=title, type=2, method=2, status=1, user=user)
+        process.save()
 
-    return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+        # add the result to the Celery
+        generate_tree_using_lsh_kmedoid.delay(
+            process_id=process.id, result_id=result_id)
+
+        return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

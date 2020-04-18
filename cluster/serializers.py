@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Process
+from .models import Process, Result
 
 
 class LSHDistanceMatrixSerializer(serializers.Serializer):
@@ -43,3 +43,13 @@ class TreeResultRequestSerializer(serializers.Serializer):
         if process.type == 1:
             raise serializers.ValidationError(
                 "Result cannot be obtained from this process type")
+
+
+class TreeCreationUsingLSHRequestSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True)
+    result_id = serializers.IntegerField(required=True)
+
+    def validate_result_id(self, id):
+        result = Result.objects.filter(id=id)
+        if not result.exists():
+            raise serializers.ValidationError("This Result Doesn't exist!")

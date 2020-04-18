@@ -21,6 +21,7 @@ from celery import shared_task
 # other
 from .models import Process, Result, TreeResult
 from .services import create_directory, remove_directory
+import time
 
 
 @shared_task
@@ -29,7 +30,7 @@ def generate_distance_matrix_using_lsh_task(process_id):
     This method runs as a background process in Celery workers consists of six sub tasks
 
         1. Create directories to the processs and dna files
-        2. Download dna files from S3 bucket 
+        2. Download dna files from S3 bucket
         3. Generate Distance Matrix
         4. Store matrix in Results model
         5. Update the Process model
@@ -39,6 +40,10 @@ def generate_distance_matrix_using_lsh_task(process_id):
     :returns : True if not False
 
     """
+    processStartingTime = time.time()
+
+    print("Distance Matrix creation process of process id=" +
+          str(process_id) + " using LSH started")
 
     # process directory path ex: BASE_DIR/storage/process_id/
     process_directory_path = BASE_DIR + "/storage/" + str(process_id) + "/"
@@ -65,6 +70,7 @@ def generate_distance_matrix_using_lsh_task(process_id):
     # value : file name (spieces name)
     file_dict = {}
 
+    print(dna_files)
     # for every file in the process
     # download the file to a specific location
     for dna in dna_files:
@@ -75,8 +81,14 @@ def generate_distance_matrix_using_lsh_task(process_id):
         # location where the file is downloaded
         location = process_dna_file_directory_path + dna.object_key
 
+        downloadStartingTime = time.time()
+        print(str(object_name) + " Downloading Started.")
+
         download_files_from_bucket(
             object_name=object_name, location=location)
+
+        print("Time for downloading " + str(object_name),
+              time.time() - downloadStartingTime)
 
         file_dict[dna.object_key[:-4]] = dna.file_name
 
@@ -94,7 +106,16 @@ def generate_distance_matrix_using_lsh_task(process_id):
 
     # delete the process floder
     # return True if success
-    return remove_directory(path=process_directory_path)
+
+    is_removed = remove_directory(path=process_directory_path)
+
+    if is_removed:
+        print("Distance Matrix creation process of process id=" +
+              str(process_id) + " using LSH ended")
+        print("Time taken for the process=", time.time() - processStartingTime)
+        return is_removed
+    else:
+        return is_removed
 
 
 @shared_task
@@ -111,6 +132,11 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
     :return : True
 
     """
+
+    processStartingTime = time.time()
+
+    print("Tree Generation process of process id=" +
+          str(process_id) + " using LSH Clustering started.")
 
     process = Process.objects.get(id=process_id)
 
@@ -134,4 +160,7 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
     process.status = 2
     process.save()
 
+    print("Tree Generation process of process id=" +
+          str(process_id) + " using LSH Clustering has ended.")
+    print("Time taken for the process=", time.time() - processStartingTime)
     return True
