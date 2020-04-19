@@ -85,7 +85,17 @@ def get_dna_bank_files(request):
 @permission_classes([IsAuthenticated])
 def get_users_dna_file_details(request):
 
-    # user
-    # query from db and return the responses
+    user = User.objects.get(username=request.user)
+    directory = Directory.objects.get(user=user)
 
-    return Response(status=HTTP_200_OK)
+    dna_files = []
+
+    dna_files_query_set = DNAFile.objects.filter(
+        directory=directory, is_available=True)
+
+    for dna_file in dna_files_query_set:
+        dna_files.append(dna_file.get_file_details())
+
+    response = {"dna_files": dna_files}
+
+    return Response(response, status=HTTP_200_OK)

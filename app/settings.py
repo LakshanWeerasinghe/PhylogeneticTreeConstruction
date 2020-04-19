@@ -16,7 +16,6 @@ import django_heroku
 # Heroku: Update database configuration from $DATABASE_URL.
 import dj_database_url
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,16 +28,17 @@ CUSTOM_STORAGE_OPTIONS = os.path.dirname(
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=0))
+# DEBUG = int(os.environ.get("DEBUG", default=0))
+DEBUG = False
 
 # These are the hosts that the server can run
-# ALLOWED_HOSTS = ['dna-phylogenetic-tree.herokuapp.com',
-#  '127.0.0.1', 'localhost']
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
+                 '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -112,44 +112,44 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-# 'default': {
-#     'ENGINE': 'django.db.backends.sqlite3',
-#     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-# }
-
-# 'default': {
-#     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#     'NAME': 'dna_tree',
-#     'USER': 'lakshan',
-#     'PASSWORD': 'lakshan',
-#     'HOST': 'localhost',
-#     'PORT': ''
-# }
-
-# 'default' : {
-#     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-#     'NAME' : 'd98geavavihpqd',
-#     'USER' : 'ysajeooocpckna',
-#     'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
-#     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
-#     'PORT' : '5432',
-# }
-# }
-
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'dna_tree',
+    #     'USER': 'lakshan',
+    #     'PASSWORD': 'lakshan',
+    #     'HOST': 'db',
+    #     'PORT': '5432'
+    # }
+
+    # 'default' : {
+    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+    #     'NAME' : 'd98geavavihpqd',
+    #     'USER' : 'ysajeooocpckna',
+    #     'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
+    #     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
+    #     'PORT' : '5432',
+    # }
+    # }
+
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+    #         "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+    #         "USER": os.environ.get("SQL_USER", "user"),
+    #         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+    #         "HOST": os.environ.get("SQL_HOST", "localhost"),
+    #         "PORT": os.environ.get("SQL_PORT", "5432"),
+    #     }
 }
 
-# db_from_env = dj_database_url.config(conn_max_age=500)
-# DATABASES['default'] = dj_database_url.config()
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'] = dj_database_url.config()
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -193,7 +193,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_URL = '/static/'
 
@@ -212,9 +213,11 @@ AWS_STORAGE_BUCKET_NAME = 'dnabank'
 # Celery configurations
 
 # CELERY_BROKER_URL = 'amqp://admin:admin@localhost:5672//'
+CELERY_BROKER_URL = 'amqp://gfxqkksy:DlWWAKRyZeiO5Ks8ldBQJVs5MSEtpL8W@crane.rmq.cloudamqp.com/gfxqkksy'
 
-CELERY_BROKER_URL = os.environ.get(
-    'CELERY_BROKER_URL', default='amqp://rabbitmq')
+
+# CELERY_BROKER_URL = os.environ.get(
+# 'CELERY_BROKER_URL', default='amqp://rabbitmq')
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'

@@ -44,21 +44,21 @@ class DNAFileSerializer(serializers.ModelSerializer):
         if not "fna" == object_key.split('.')[-1]:
             raise serializers.ValidationError("Can only upload fastar files")
 
-        dna_file = DNAFile.objects.filter(object_key=object_key)
-
-        if dna_file.exists():
-            raise serializers.ValidationError("This file already exisist")
-
         return object_key
 
-    # spieces validation
-    def validate_file_name(self, file_name):
+    def validate(self, attrs):
 
-        dna_file = DNAFile.objects.filter(file_name=file_name)
-        if dna_file.exists():
-            raise serializers.ValidationError("This spieces already exist")
+        directory = Directory.objects.get(id=attrs['directory'])
+        dna_files = DNAFile.objects.filter(
+            directory=directory, object_key=attrs["object_key"])
+        if dna_files.exists():
+            raise serializers.ValidationError("This file already exist!")
 
-        return file_name
+        dnas = DNAFile.objects.filter(
+            directory=directory, file_name=attrs["file_name"])
+        if dnas.exists():
+            raise serializers.ValidationError("This file name already exist.")
+        return attrs
 
     def create(self, validated_data):
 

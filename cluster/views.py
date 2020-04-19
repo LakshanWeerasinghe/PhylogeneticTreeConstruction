@@ -47,7 +47,8 @@ def generate_distance_matrix_using_lsh_view(request):
     for file_name in dna_files_names:
         dna_file = None
         try:
-            dna_file = DNAFile.objects.get(file_name=file_name)
+            dna_file = DNAFile.objects.get(
+                file_name=file_name, is_available=True)
         except ObjectDoesNotExist:
             error = file_name + " File Doesn't Exist!"
             return Response({"error": error}, status=HTTP_400_BAD_REQUEST)
