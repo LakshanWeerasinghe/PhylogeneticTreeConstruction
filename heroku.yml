@@ -1,9 +1,6 @@
-
-
 build:
     docker:
       web: Dockerfile.prod
-      worker: Dockerfile.prod
   run:
     web: 
       command:
@@ -12,4 +9,4 @@ build:
     worker: 
       command:
         - celery -A app --concurrency=1 worker -l info
-      image: worker
+      image: web
