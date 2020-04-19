@@ -1,0 +1,13 @@
+build:
+    docker:
+      web: Dockerfile.prod
+      worker: Dockerfile.prod
+  run:
+    web: 
+      command:
+        - gunicorn app.wsgi:application --bind 0.0.0.0:8000  
+      image: web
+    worker: 
+      command:
+        - celery -A app --concurrency=1 worker -l info
+      image: worker

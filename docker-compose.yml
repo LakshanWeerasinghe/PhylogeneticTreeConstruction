@@ -1,0 +1,44 @@
+version: '3'
+volumes: 
+    postgres_data:
+services: 
+    db:
+        image: postgres:12.0-alpine
+        volumes: 
+            - postgres_data:/var/lib/postgresql/data/
+        env_file: 
+            - .env.dev
+        environment: 
+            - POSTGRES_DB=dna_tree
+            - POSTGRES_USER=lakshan
+            - POSTGRES_PASSWORD=lakshan
+        ports: 
+            - 5432:5432
+    python: &python
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        ports: 
+            - 8000:8000
+        env_file: 
+            - .env.dev
+        command: python manage.py runserver 0.0.0.0:8000            
+        depends_on: 
+            - db
+            - rabbitmq
+            - celery_worker
+    # messaging queue for celery
+    rabbitmq:
+        image: rabbitmq:3.7-alpine
+    celery_worker:
+        <<: *python
+        env_file: 
+            - .env.dev
+        command: celery -A app --concurrency=1 worker -l info
+        ports: []
+
+        depends_on: 
+            - db
+            - rabbitmq
+
+
