@@ -1,6 +1,9 @@
 #django
+from django.views import generic
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.views.generic import View
 
 #rest framework
 from rest_framework.decorators import api_view, permission_classes
@@ -78,11 +81,11 @@ def get_dna_bank_files(request):
 
     return Response(status=HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_users_dna_file_details(request):
-    data = request.data
-    list_all_file_names_from_bucket(data['bucket_name'])   # need to give the bucket name
-    return Response(status=HTTP_200_OK)
+#@api_view(['GET'])
+#@permission_classes([IsAuthenticated])
+class IndexView(generic.ListView):
+    template_name="dna_storage/index.html"
+    context_object_name = 'all_files'
 
-    
+    def get_queryset(set):
+        return DNAFile.objects.all()

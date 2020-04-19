@@ -11,3 +11,6 @@ class DNAFile(models.Model):
     is_available = models.BooleanField(default=False)
     size = models.IntegerField(blank=True, null=True)
     directory = models.ForeignKey(Directory, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.file_name
