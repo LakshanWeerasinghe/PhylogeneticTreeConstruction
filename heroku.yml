@@ -4,7 +4,7 @@ build:
 run:
   web: 
     command:
-      - gunicorn app.wsgi:application --bind 0.0.0.0:8000  
+      - gunicorn app.wsgi:application --bind 0.0.0.0:$PORT  
     image: web
   worker: 
     command:
