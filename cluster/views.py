@@ -146,6 +146,21 @@ def get_process_tree_result_view(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_processes_view(request):
+
+    # user instance
+    user = User.objects.get(username=request.user)
+    user_processes = Process.objects.filter(user=user)
+
+    user_process_list = []
+    for process in user_processes:
+        user_process_list.append(process.get_process_details_as_dict())
+
+    return Response({"process_list": user_process_list}, status=HTTP_200_OK)
+
+
+@api_view(["GET"])
 def test_view(request):
 
     # result = Result.objects.get(id=2)

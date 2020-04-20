@@ -27,6 +27,9 @@ urlpatterns = [
 
     # 4
     path('tree/result/', get_process_tree_result_view, name='tree_result'),
-    path("", test_view)
+    path("", test_view),
+
+    # 5
+    path('allProcesses/', get_user_processes_view, name="user_processes")
 
 ]
