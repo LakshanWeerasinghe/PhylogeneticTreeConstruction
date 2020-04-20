@@ -8,5 +8,5 @@ run:
     image: web
   worker: 
     command:
-      - celery -A app --concurrency=1 worker -l info
+      - celery -A app --concurrency=2 worker -l info
     image: web
