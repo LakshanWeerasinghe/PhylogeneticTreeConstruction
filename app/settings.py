@@ -213,7 +213,7 @@ AWS_STORAGE_BUCKET_NAME = 'dnabank'
 # Celery configurations
 
 # CELERY_BROKER_URL = 'amqp://admin:admin@localhost:5672//'
-CELERY_BROKER_URL = 'amqp://gfxqkksy:DlWWAKRyZeiO5Ks8ldBQJVs5MSEtpL8W@crane.rmq.cloudamqp.com/gfxqkksy'
+CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
 
 
 # CELERY_BROKER_URL = os.environ.get(
