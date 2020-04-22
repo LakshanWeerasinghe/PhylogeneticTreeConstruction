@@ -8,7 +8,9 @@ from .views import *
         2. BASE_URL/lsh/tree/generate/ : generate tree using LSH KMedoid Clustering algorithm
         3. BASE_URL/matrix/result/ : get the Distance Matrix
         4. BASE_URL/tree/result/ : get the Phylogenetric Tree
-
+        5. BASE_URL/allProcesses/ : get all Processes generate by a user
+        6. BASE_URL/kmer/matrix/generate/ : generate the distance matrix using Kmer
+        7. BASE_URL/kmer/tree/generate/ : generate tree using Kmer KMedoid Clustering algorithm
 
 """
 
@@ -30,6 +32,14 @@ urlpatterns = [
     path("", test_view),
 
     # 5
-    path('allProcesses/', get_user_processes_view, name="user_processes")
+    path('allProcesses/', get_user_processes_view, name="user_processes"),
+
+    # 6
+    path('kmer/matrix/generate/', generate_distance_matrix_using_kmer_view,
+         name='kmer_matrix_generate'),
+
+    # 7
+    path('kmer/tree/generate/', generate_tree_using_kmer_view,
+         name='kmer_tree_generate'),
 
 ]

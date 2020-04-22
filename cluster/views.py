@@ -20,10 +20,88 @@ from .serializers import *
 import json
 
 # tasks
-from .tasks import generate_distance_matrix_using_lsh_task, generate_tree_using_lsh_kmedoid
+from .tasks import *
 
 from algorithms.lsh.kmedoid_clustering_LSH import start_kemedoid
 from algorithms.distance_matrix import distanceMatrixGenerator
+
+"""
+    View belong to Kmer
+"""
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_distance_matrix_using_kmer_view(request):
+
+    # list to store dna file instances
+    dna_files = []
+
+    title = request.data["title"]
+
+    # list of dna file names
+    dna_files_names = request.data["file_names"]
+
+    # user instance
+    user = User.objects.get(username=request.user)
+
+    # directory instance
+    directory = Directory.objects.get(user=user)
+
+    for file_name in dna_files_names:
+        dna_file = None
+        try:
+            dna_file = DNAFile.objects.get(
+                file_name=file_name, is_available=True, directory=directory)
+        except ObjectDoesNotExist:
+            error = file_name + " File Doesn't Exist!"
+            return Response({"error": error}, status=HTTP_400_BAD_REQUEST)
+        else:
+            dna_files.append(dna_file)
+
+    # create the process and stores in the database
+    # generate celery task and
+    # add it to the RabbitMQ
+    process = Process(title=title, type=1, method=3, status=1, user=user)
+
+    try:
+        process.save()
+        for dna in dna_files:
+            process.dna_files.add(dna)
+
+        # clls the celery task
+        generate_distance_matrix_using_kmer_task.delay(process.id)
+    except Exception as ex:
+        print(ex)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
+    return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_tree_using_kmer_view(request):
+
+    result_id = request.data["result_id"]
+    title = request.data["title"]
+
+    serializer = TreeCreationUsingLSHRequestSerializer(data=request.data)
+
+    if serializer.is_valid():
+        # user instance
+        user = User.objects.get(username=request.user)
+
+        # create a new process and save
+        process = Process(title=title, type=2, method=4, status=1, user=user)
+        process.save()
+
+        # add the result to the Celery
+        generate_tree_using_kmer_kmedoid.delay(
+            process_id=process.id, result_id=result_id)
+
+        return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -48,7 +126,7 @@ def generate_distance_matrix_using_lsh_view(request):
         dna_file = None
         try:
             dna_file = DNAFile.objects.get(
-                file_name=file_name, is_available=True)
+                file_name=file_name, is_available=True, directory=directory)
         except ObjectDoesNotExist:
             error = file_name + " File Doesn't Exist!"
             return Response({"error": error}, status=HTTP_400_BAD_REQUEST)
