@@ -1,0 +1,12 @@
+build:
+  docker:
+    web: Dockerfile.prod
+run:
+  web: 
+    command:
+      - gunicorn app.wsgi:application 
+    image: web
+  worker: 
+    command:
+      - celery -A app --concurrency=1 worker -l info
+    image: web

@@ -8,7 +8,6 @@ from app.settings import AWS_SECRET_ACCESS_KEY, AWS_ACCESS_KEY_ID, AWS_STORAGE_B
 
 
 def get_s3_client():
-
     """
     Create the boto3 client todo aws s3 operations
 
@@ -17,16 +16,15 @@ def get_s3_client():
     """
 
     return boto3.client(
-                        's3',
-                        aws_access_key_id= AWS_ACCESS_KEY_ID,
-                        aws_secret_access_key= AWS_SECRET_ACCESS_KEY,
-                        config=Config(signature_version='s3v4'),
-                        region_name='us-east-2'
-                        )
-    
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        config=Config(signature_version='s3v4'),
+        region_name='us-east-2'
+    )
+
 
 def create_preassinged_url(directory_name, object_name, expiration=3600):
-
     """
     Generate a presigned URL S3 PUT request to upload a file
 
@@ -50,12 +48,16 @@ def create_preassinged_url(directory_name, object_name, expiration=3600):
     except ClientError as e:
         logging.error(e)
         return None
-        
+
     # The response contains the presigned URL and required fields
     return response
 
 
+def download_files_from_bucket(object_name, location):
+    """
+    Download dna file from the S3 bucket
 
+<<<<<<< HEAD
 def download_files_from_bucket(bucket_name, object_name, file_name): 
     #object_name - file name in the bucket, file_name - path to download and the file name to save
     
@@ -82,3 +84,11 @@ def list_all_file_names_from_bucket (bucket_name):
 
         for item in bucket.objects.all():
             print(item.file_name)
+=======
+    :param object_name : string
+    :param location : string
+
+    """
+    s3_client = get_s3_client()
+    s3_client.download_file(AWS_STORAGE_BUCKET_NAME, object_name, location)
+>>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87

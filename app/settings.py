@@ -13,28 +13,32 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import django_heroku
 
-# Heroku: Update database configuration from $DATABASE_URL. 
-import dj_database_url 
-
+# Heroku: Update database configuration from $DATABASE_URL.
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-#Custom Storage directory
-CUSTOM_STORAGE_OPTIONS = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/storage"
+# Custom Storage directory
+CUSTOM_STORAGE_OPTIONS = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))) + "/storage"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = int(os.environ.get("DEBUG", default=0))
 DEBUG = False
 
-#These are the hosts that the server can run
-ALLOWED_HOSTS = ['dna-phylogenetic-tree.herokuapp.com', '127.0.0.1', 'localhost']
+# These are the hosts that the server can run
+ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
+                 '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,16 +52,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #installed apps for django
+    # installed apps for django
     'file_upload.apps.FileUploadConfig',
-	'users.apps.UsersConfig',
+    'users.apps.UsersConfig',
     'dna_storage.apps.DnaStorageConfig',
+    'cluster.apps.ClusterConfig',
 
-     #rest API implementation library for django
+    # rest API implementation library for django
     'rest_framework',
     'rest_framework.authtoken',
 
-    #cors
+    # celery
+    'django_celery_results',
+
+    # cors
     'corsheaders',
 ]
 
@@ -68,14 +76,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    #middleware for cors
+    # middleware for cors
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    #WhiteNoise
+    # WhiteNoise
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
-    #csrf
+    # csrf
     'django.middleware.csrf.CsrfViewMiddleware',
 
 ]
@@ -105,18 +113,18 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
 
     # 'default': {
-    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-    #     'NAME' : 'dna_tree',
-    #     'USER' : 'lakshan',
-    #     'PASSWORD' : 'lakshan',
-    #     'HOST' : 'localhost',
-    #     'PORT' : ''
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'dna_tree',
+    #     'USER': 'lakshan',
+    #     'PASSWORD': 'lakshan',
+    #     'HOST': 'db',
+    #     'PORT': '5432'
     # }
 
     # 'default' : {
@@ -127,16 +135,31 @@ DATABASES = {
     #     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
     #     'PORT' : '5432',
     # }
+    # }
+
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+    #         "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+    #         "USER": os.environ.get("SQL_USER", "user"),
+    #         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+    #         "HOST": os.environ.get("SQL_HOST", "localhost"),
+    #         "PORT": os.environ.get("SQL_PORT", "5432"),
+    #     }
 }
 
-
+<<<<<<< HEAD
 #db_from_env = dj_database_url.config(conn_max_age=500) 
 #DATABASES['default'] = dj_database_url.config()
+=======
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'] = dj_database_url.config()
+>>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87
 
 REST_FRAMEWORK = {
-   'DEFAULT_AUTHENTICATION_CLASSES': (
-       'rest_framework.authentication.TokenAuthentication',
-   )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
 }
 
 # Password validation
@@ -175,21 +198,36 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_URL = '/static/'
 
 
-#cors configuration
+# cors configuration
 
 CORS_ORIGIN_ALLOW_ALL = True
 
 
-#AWS S3 storage configurations
+# AWS S3 storage configurations
 
 AWS_ACCESS_KEY_ID = 'AKIA35HYTNT635SBY2CI'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'dnabank'
+
+# Celery configurations
+
+# CELERY_BROKER_URL = 'amqp://admin:admin@localhost:5672//'
+CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
+
+
+# CELERY_BROKER_URL = os.environ.get(
+# 'CELERY_BROKER_URL', default='amqp://rabbitmq')
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
 
 
 django_heroku.settings(locals())
