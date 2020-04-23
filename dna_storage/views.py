@@ -55,11 +55,14 @@ def dna_file_uploaded_view(request):
     data = request.data
 
     dna_file_uploaded_serializer = DNAFileUploadedSerializer(data=data)
+    user = User.objects.get(username=request.user)
+    directory = Directory.objects.get(user=user)
 
     if dna_file_uploaded_serializer.is_valid():
 
         file_name = data['file_name']
-        dna_file_instance = DNAFile.objects.get(file_name=file_name)
+        dna_file_instance = DNAFile.objects.get(
+            file_name=file_name, directory=directory)
         if data['is_uploaded'] == 1:
             dna_file_instance.is_available = True
             dna_file_instance.save()
