@@ -107,8 +107,6 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
             if(has_kmer(dict, each_kmer)):
                 count = count+1
 
-    print(len(k_lists[0]), len(k_lists[1]))
-    #
     time23 = datetime.datetime.now()
 
     kmer_similarities = ""

@@ -260,6 +260,9 @@ def generate_distance_matrix_using_kmer_task(process_id):
 
         file_dict[dna.object_key[:-4]] = dna.file_name
 
+        print(object_name)
+
+    print("Kmer Script File")
     # calls the kmer_listing script to generate the dsk results
     run_kmer_sh_file(dna_sequence_path=process_dna_file_directory_path,
                      dsk_results_path=process_dsk_results_directory_path)

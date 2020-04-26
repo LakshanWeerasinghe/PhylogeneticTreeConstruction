@@ -42,4 +42,6 @@ urlpatterns = [
     path('kmer/tree/generate/', generate_tree_using_kmer_view,
          name='kmer_tree_generate'),
 
+    path('', test_view)
+
 ]

@@ -25,6 +25,8 @@ from .tasks import *
 from algorithms.lsh.kmedoid_clustering_LSH import start_kemedoid
 from algorithms.distance_matrix import distanceMatrixGenerator
 
+from dsk.bin.kp import run_kmer_sh_file
+
 """
     View belong to Kmer
 """
@@ -255,6 +257,5 @@ def test_view(request):
     # print(tree)
     # tree.save()
 
-    tree = TreeResult.objects.get(id=2)
-    print(tree.tree)
-    return Response(tree.tree)
+    run_kmer_sh_file("kfmakdm", "jandjfnj")
+    return Response()
