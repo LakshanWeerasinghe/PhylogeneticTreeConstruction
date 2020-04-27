@@ -52,8 +52,8 @@ def generate_distance_matrix_using_lsh_task(process_id, defaultUser=False):
     print("Distance Matrix creation process of process id=" +
           str(process_id) + " using LSH started ")
 
-    # process directory path ex: BASE_DIR/storage/process_id/
-    process_directory_path = BASE_DIR + "/storage/" + str(process_id) + "/"
+    # process directory path ex: BASE_DIR/tmp/process_id/
+    process_directory_path = "/tmp/" + str(process_id) + "/"
 
     # dna files directory path ex: BASE_DIR/storage/process_id/DNA_SEQUNCES/
     process_dna_file_directory_path = process_directory_path + "DNA_SEQUNCES/"
@@ -203,7 +203,7 @@ def generate_distance_matrix_using_kmer_task(process_id, defaultUser=False):
           str(process_id) + " Started.")
 
     # process directory path ex: BASE_DIR/storage/process_id/
-    process_directory_path = BASE_DIR + "/storage/" + str(process_id) + "/"
+    process_directory_path = "/tmp/" + str(process_id) + "/"
 
     # dna files directory path ex: BASE_DIR/storage/process_id/DNA_SEQUNCES/
     process_dna_file_directory_path = process_directory_path + "DNA_SEQUNCES/"
