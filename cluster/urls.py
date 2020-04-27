@@ -30,6 +30,10 @@ urlpatterns = [
     path("", test_view),
 
     # 5
-    path('allProcesses/', get_user_processes_view, name="user_processes")
+    path('allProcesses/', get_user_processes_view, name="user_processes"),
+
+    # 6
+    path('matrix/generate/default/', generate_distance_matrix_using_default_files_view,
+         name="matrix_generate_default")
 
 ]
