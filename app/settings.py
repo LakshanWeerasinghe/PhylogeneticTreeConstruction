@@ -224,5 +224,6 @@ CELERY_CACHE_BACKEND = 'django-cache'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
+DEFAULT_USERNAME = "default_user"
 
 django_heroku.settings(locals())

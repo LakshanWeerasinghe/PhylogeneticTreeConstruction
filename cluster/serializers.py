@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Process, Result
+from .models import *
 
 
 class LSHDistanceMatrixSerializer(serializers.Serializer):
@@ -10,46 +10,55 @@ class LSHDistanceMatrixSerializer(serializers.Serializer):
 
 
 class MatrixResultRequestSerializer(serializers.Serializer):
+
+    """
+    This Class is used to validate the Distance Matrix Result Viewing Request
+
+    """
     process_id = serializers.IntegerField()
 
     def validate_process_id(self, id):
 
-        process = Process.objects.filter(id=id)
+        process = MatrixProcess.objects.filter(id=id)
         if not process.exists():
             raise serializers.ValidationError("This Process Doesn't exists!")
         else:
             process = process.first()
         if process.status == 1:
             raise serializers.ValidationError(
-                "This Process is still in Progress")
-        if process.type == 2:
-            raise serializers.ValidationError(
-                "Result cannot be obtained from this process type")
+                "Distance Matrix Generation is still in Progress")
 
 
 class TreeResultRequestSerializer(serializers.Serializer):
+
+    """
+    This Class is used to validate the Phylogenetic Tree Result Viewing Request
+
+    """
     process_id = serializers.IntegerField()
 
     def validate_process_id(self, id):
 
-        process = Process.objects.filter(id=id)
+        process = PhylogeneticTreeProcess.objects.filter(id=id)
         if not process.exists():
             raise serializers.ValidationError("This Process Doesn't exists!")
         else:
             process = process.first()
         if process.status == 1:
             raise serializers.ValidationError(
-                "This Process is still in Progress")
-        if process.type == 1:
-            raise serializers.ValidationError(
-                "Result cannot be obtained from this process type")
+                "Phylogenetric Tree creation is still in Progress")
 
 
-class TreeCreationUsingLSHRequestSerializer(serializers.Serializer):
+class TreeCreationRequestSerializer(serializers.Serializer):
+    """
+    This class is used to validate the Phylogenetic Tree Creation Process Requests
+
+    """
     title = serializers.CharField(required=True)
     result_id = serializers.IntegerField(required=True)
+    type = serializers.CharField(required=True)
 
     def validate_result_id(self, id):
-        result = Result.objects.filter(id=id)
+        result = DNASimilaritiesResult.objects.filter(id=id)
         if not result.exists():
             raise serializers.ValidationError("This Result Doesn't exist!")

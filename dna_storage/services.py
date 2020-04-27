@@ -23,6 +23,26 @@ def get_s3_client():
     )
 
 
+def upload_file(file_name, object_name):
+    """Upload a file to an S3 bucket
+
+    :param file_name: File to upload
+    :param bucket: Bucket to upload to
+    :param object_name: S3 object name. If not specified then file_name is used
+    :return: True if file was uploaded, else False
+    """
+
+    # Upload the file
+    s3_client = get_s3_client()
+    try:
+        response = s3_client.upload_file(
+            file_name, AWS_STORAGE_BUCKET_NAME, object_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
+
 def create_preassinged_url(directory_name, object_name, expiration=3600):
     """
     Generate a presigned URL S3 PUT request to upload a file

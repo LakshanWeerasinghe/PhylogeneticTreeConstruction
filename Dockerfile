@@ -52,22 +52,24 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2
-RUN apt update \  
-    && apt install -y gcc python3-dev musl-dev \
-    && apt install -y postgres-server-dev-all \
-    && pip install -y psycopg2 \
-    && apt install -y  bash 
+RUN apt-get update \  
+    && apt-get -y upgrade \
+    && apt-get install -y apt-utils \
+    && apt-get install -y python3-pip 
 
-RUN apt install make automake gcc g++ subversion python3-dev 
+RUN apt-get install -y libpq-dev postgresql postgresql-contrib \
+    && pip3 install -U setuptools 
+
+RUN apt-get install -y make automake gcc g++ subversion python3-dev musl-dev
 
 # install cmake
-RUN apt install cmake\
+RUN apt-get install -y cmake\
     && rm -rf /var/lib/apt/lists/*
 
 
 # install dependencies
 COPY ./requirements.txt /usr/src/app/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 
 # copy project
@@ -83,4 +85,3 @@ RUN chmod -R 777 ./dsk
 
 
 CMD ["sh", "entrypoint.sh" ]
-

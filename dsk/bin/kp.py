@@ -14,28 +14,3 @@ def run_kmer_sh_file(dna_sequence_path, dsk_results_path):
         print(output)
     except Exception as e:
         print(str(e))
-
-    print(subprocess.call(["./dsk2ascii"], shell=True))
-
-    # print("Finished")
-
-    try:
-        cmd = './dsk'
-        so = os.popen(cmd).read()
-        print(so)
-    except Exception as e:
-        print(e)
-
-    try:
-        cmd = './dsk2ascii'
-        so = os.popen(cmd).read()
-        print(so)
-    except Exception as e:
-        print(e)
-
-    # try:
-    #     cmd = 'ls -l dsk/bin'
-    #     so = os.popen(cmd).read()
-    #     print(so)
-    # except Exception as e:
-    #     print(e)

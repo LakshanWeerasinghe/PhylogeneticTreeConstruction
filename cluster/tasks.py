@@ -13,7 +13,7 @@ import subprocess
 from algorithms.lsh import lsh
 from algorithms.lsh.kmedoid_clustering_LSH import start_kemedoid
 from dna_storage.models import Directory
-from dna_storage.services import download_files_from_bucket
+from dna_storage.services import download_files_from_bucket, upload_file
 from app.settings import BASE_DIR
 from algorithms.kmer.csv_operations import text_to_csv
 from algorithms.kmer.kmer_distance_calculation import kmer_distance_main
@@ -23,15 +23,16 @@ from algorithms.kmer.kmedoid_clustering_kmer import start_kmedoid_kmer
 from celery import shared_task
 
 # other
-from .models import Process, Result, TreeResult
+from .models import *
 from .services import create_directory, remove_directory
 import time
 
 from dsk.bin.kp import run_kmer_sh_file
+from app.settings import DEFAULT_USERNAME
 
 
 @shared_task
-def generate_distance_matrix_using_lsh_task(process_id):
+def generate_distance_matrix_using_lsh_task(process_id, defaultUser=False):
     """
     This method runs as a background process in Celery workers consists of six sub tasks
 
@@ -49,7 +50,7 @@ def generate_distance_matrix_using_lsh_task(process_id):
     processStartingTime = time.time()
 
     print("Distance Matrix creation process of process id=" +
-          str(process_id) + " using LSH started")
+          str(process_id) + " using LSH started ")
 
     # process directory path ex: BASE_DIR/storage/process_id/
     process_directory_path = BASE_DIR + "/storage/" + str(process_id) + "/"
@@ -64,10 +65,14 @@ def generate_distance_matrix_using_lsh_task(process_id):
     create_directory(process_dna_file_directory_path)
 
     # process instance
-    process = Process.objects.get(id=process_id)
+    process = MatrixProcess.objects.get(id=process_id)
 
     # S3 bucket directory name
-    dna_directory = Directory.objects.get(user=process.user)
+    if defaultUser:
+        dna_directory_name = DEFAULT_USERNAME
+    else:
+        dna_directory = Directory.objects.get(user=process.user)
+        dna_directory_name = dna_directory.name
 
     dna_files = process.dna_files.all()
 
@@ -82,7 +87,7 @@ def generate_distance_matrix_using_lsh_task(process_id):
     for dna in dna_files:
 
         # ex : username/dnafile.fna
-        object_name = dna_directory.name + "/" + dna.object_key
+        object_name = dna_directory_name + "/" + dna.object_key
 
         # location where the file is downloaded
         location = process_dna_file_directory_path + dna.object_key
@@ -100,10 +105,11 @@ def generate_distance_matrix_using_lsh_task(process_id):
 
     # genreate matrix
     # process id
-    result_matrix = lsh.main(process_id, file_dict)
+    lsh_simialarities = lsh.main(process_id, file_dict)
 
     # save results in results table
-    result = Result(process=process, result=result_matrix)
+    result = DNASimilaritiesResult(
+        process=process, result=lsh_simialarities)
     result.save()
 
     # update the process status
@@ -133,8 +139,8 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
         3. Save the Tree result in the database
         4. Update the process status
 
-    :param : process_id : int (Process id of the Tree Creation Process)
-    :param : result_id : int (Result id of the LSH distance matrix Process)
+    :param : process_id : int (Process id of the Phylogenetic Tree Creation Process)
+    :param : result_id : int (Result id of the Matrix Process)
     :return : True
 
     """
@@ -144,10 +150,10 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
     print("Tree Generation process of process id=" +
           str(process_id) + " using LSH Clustering started.")
 
-    process = Process.objects.get(id=process_id)
+    process = PhylogeneticTreeProcess.objects.get(id=process_id)
 
     # get the result from database
-    lsh_result = Result.objects.get(id=result_id)
+    lsh_result = DNASimilaritiesResult.objects.get(id=result_id)
 
     # convert the string of lsh similarities into list of similarities
     lsh_similarities = lsh_result.result.split("\n")
@@ -159,7 +165,7 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
     tree_dict = start_kemedoid(lsh_similarity_result=lsh_similarities)
 
     # save the result in the database
-    tree_result = TreeResult(process=process, tree=tree_dict)
+    tree_result = PhylogeneticTreeResult(process=process, tree=tree_dict)
     tree_result.save()
 
     # update the process status
@@ -173,9 +179,9 @@ def generate_tree_using_lsh_kmedoid(process_id, result_id):
 
 
 @shared_task
-def generate_distance_matrix_using_kmer_task(process_id):
+def generate_distance_matrix_using_kmer_task(process_id, defaultUser=False):
     """
-    This method runs as a background process in Celery workers consists of eight sub tasks
+    This method runs as a background process in Celery workers consists of nine sub tasks
 
         1. Create directories to the processs and dna files
         2. Download dna files from S3 bucket
@@ -184,7 +190,8 @@ def generate_distance_matrix_using_kmer_task(process_id):
         5. Generate the similarites of the DNA files
         6. Store the results in the table
         7. Update the process status
-        8. Delete the process directory
+        8. Upload the Kmer Forest to S3 bucket
+        9. Delete the process directory
 
     :param : process_id : int
     :returns : True 
@@ -226,10 +233,14 @@ def generate_distance_matrix_using_kmer_task(process_id):
     create_directory(process_kmer_forests_path)
 
     # process instance
-    process = Process.objects.get(id=process_id)
+    process = MatrixProcess.objects.get(id=process_id)
 
     # S3 bucket directory name
-    dna_directory = Directory.objects.get(user=process.user)
+    if defaultUser:
+        dna_directory_name = DEFAULT_USERNAME
+    else:
+        dna_directory = Directory.objects.get(user=process.user)
+        dna_directory_name = dna_directory.name
 
     dna_files = process.dna_files.all()
 
@@ -244,7 +255,7 @@ def generate_distance_matrix_using_kmer_task(process_id):
     for dna in dna_files:
 
         # ex : username/dnafile.fna
-        object_name = dna_directory.name + "/" + dna.object_key
+        object_name = dna_directory_name + "/" + dna.object_key
 
         # location where the file is downloaded
         location = process_dna_file_directory_path + dna.object_key
@@ -262,10 +273,12 @@ def generate_distance_matrix_using_kmer_task(process_id):
 
         print(object_name)
 
-    print("Kmer Script File")
+    print("Kmer Listing Started")
     # calls the kmer_listing script to generate the dsk results
     run_kmer_sh_file(dna_sequence_path=process_dna_file_directory_path,
                      dsk_results_path=process_dsk_results_directory_path)
+
+    print("Kmer Listing Finished")
 
     # conver the text file into csv
     text_to_csv(DSK_Path=process_dsk_results_directory_path,
@@ -276,12 +289,28 @@ def generate_distance_matrix_using_kmer_task(process_id):
                                            kmer_forest_path=process_kmer_forests_path, file_dict=file_dict)
 
     # save results in results table
-    result = Result(process=process, result=kmer_similarities)
+    result = DNASimilaritiesResult(process=process, result=kmer_similarities)
     result.save()
 
     # update the process status
     process.status = 2
     process.save()
+
+    kmer_forests = os.listdir(process_kmer_forests_path)
+
+    for kmer_forest in kmer_forests:
+
+        object_name = "kmer_forests/" + \
+            str(process_id) + "/" + str(kmer_forest)
+
+        file_name = process_kmer_forests_path + str(kmer_forest)
+
+        is_uploaded = upload_file(file_name=file_name, object_name=object_name)
+
+        if is_uploaded:
+            kmer_forest_object = KMerForestResult(
+                process=process, result_locaion=object_name)
+            kmer_forest_object.save()
 
     # delete the process floder
     # return True if success
@@ -317,10 +346,10 @@ def generate_tree_using_kmer_kmedoid(process_id, result_id):
     print("Tree Generation process of process id=" +
           str(process_id) + " using Kmer Clustering started.")
 
-    process = Process.objects.get(id=process_id)
+    process = PhylogeneticTreeProcess.objects.get(id=process_id)
 
     # get the result from database
-    kmer_result = Result.objects.get(id=result_id)
+    kmer_result = DNASimilaritiesResult.objects.get(id=result_id)
 
     # convert the string of kmer similarities into list of similarities
     kmer_similarites = kmer_result.result.split("\n")
@@ -332,7 +361,7 @@ def generate_tree_using_kmer_kmedoid(process_id, result_id):
     tree_dict = start_kmedoid_kmer(kmer_similarity_result=kmer_similarites)
 
     # save the result in the database
-    tree_result = TreeResult(process=process, tree=tree_dict)
+    tree_result = PhylogeneticTreeResult(process=process, tree=tree_dict)
     tree_result.save()
 
     # update the process status

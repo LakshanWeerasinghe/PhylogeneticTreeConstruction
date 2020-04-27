@@ -91,8 +91,8 @@ def start_kmedoid_kmer(kmer_similarity_result):
 
     data_label_copy = data[0].copy()
 
-    for i in range(0, 5):
-        for j in range(0, 5):
+    for i in range(0, len(data_label_copy)):
+        for j in range(0, len(data_label_copy)):
             if(distance_matrix[i][j] == 0):
                 distance_matrix[i][j] = 1000
             else:
