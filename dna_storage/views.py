@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from .services import create_preassinged_url
 from .models import Directory, DNAFile
 from .serializers import DNAFileSerializer, DNAFileUploadedSerializer
-
+from app.settings import DEFAULT_USERNAME
 
 # Todo
 # 1. give the aws s3 url to upload the dna sequences - Done
@@ -79,9 +79,20 @@ def dna_file_uploaded_view(request):
 @permission_classes([IsAuthenticated])
 def get_dna_bank_files(request):
 
-    # query from the db and send the response
+    user = User.objects.get(username=DEFAULT_USERNAME)
+    directory = Directory.objects.get(user=user)
 
-    return Response(status=HTTP_200_OK)
+    dna_files = []
+
+    dna_files_query_set = DNAFile.objects.filter(
+        directory=directory, is_available=True)
+
+    for dna_file in dna_files_query_set:
+        dna_files.append(dna_file.get_file_details())
+
+    response = {"dna_files": dna_files}
+
+    return Response(response, status=HTTP_200_OK)
 
 
 @api_view(['GET'])
