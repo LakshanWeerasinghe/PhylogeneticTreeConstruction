@@ -93,8 +93,11 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         dict = {}
         time1 = datetime.datetime.now()
 
+        print("Kmer adding Started")
         for each_kmer in kmer_list:
             add_kmer(dict, each_kmer)
+
+        print("KMer addding Finished")
 
         time2 = datetime.datetime.now()
         print("forest construction finished : "+str(time2-time1))
