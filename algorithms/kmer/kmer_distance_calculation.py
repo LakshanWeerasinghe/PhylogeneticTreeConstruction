@@ -193,4 +193,4 @@ def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
                 str(intersection/union)+'\n'
             kmer_similarities += new_line
             print('Elapsed time for cosmparison', (time33 - time23))
-        return kmer_similarities
+    return kmer_similarities
