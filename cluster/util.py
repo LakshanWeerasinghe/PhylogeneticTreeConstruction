@@ -18,6 +18,37 @@ class ProcessMethodTypes(IntEnum):
                 return keys.name
 
 
+class ProcessTypes(IntEnum):
+    LSH = 1
+    KMER = 2
+
+    @classmethod
+    def choises(cls):
+        return [(key.value, key.name) for key in cls]
+
+    @classmethod
+    def get_key(cls, value):
+        for keys in cls:
+            if value == keys.value:
+                return keys.name
+
+
+class ProcessStatusTypes(IntEnum):
+    PROGRESS = 1
+    SUCCESS = 2
+    FAILED = 3
+
+    @classmethod
+    def choises(cls):
+        return [(key.value, key.name) for key in cls]
+
+    @classmethod
+    def get_key(cls, value):
+        for keys in cls:
+            if value == keys.value:
+                return keys.name
+
+
 class StatusTypes(IntEnum):
     PROGRESS = 1
     SUCCESS = 2

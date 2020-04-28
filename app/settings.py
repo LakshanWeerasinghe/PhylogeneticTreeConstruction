@@ -213,7 +213,7 @@ AWS_STORAGE_BUCKET_NAME = 'dnabank'
 
 # Celery configurations
 
-# CELERY_BROKER_URL = 'amqp://admin:admin@localhost:5672//'
+# CELERY_BROKER_URL = 'amqp://rabbitmq'
 CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
 
 
@@ -225,5 +225,6 @@ CELERY_CACHE_BACKEND = 'django-cache'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
+DEFAULT_USERNAME = "default_user"
 
 django_heroku.settings(locals())
