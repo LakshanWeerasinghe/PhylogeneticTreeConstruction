@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-#django
-from django.views import generic
-=======
 # django
->>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -87,16 +82,6 @@ def get_dna_bank_files(request):
 
     return Response(status=HTTP_200_OK)
 
-<<<<<<< HEAD
-#@api_view(['GET'])
-#@permission_classes([IsAuthenticated])
-class IndexView(generic.ListView):
-    template_name="dna_storage/index.html"
-    context_object_name = 'all_files'
-
-    def get_queryset(set):
-        return DNAFile.objects.all()
-=======
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -116,4 +101,3 @@ def get_users_dna_file_details(request):
     response = {"dna_files": dna_files}
 
     return Response(response, status=HTTP_200_OK)
->>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87

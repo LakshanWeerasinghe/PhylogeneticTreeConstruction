@@ -57,38 +57,9 @@ def download_files_from_bucket(object_name, location):
     """
     Download dna file from the S3 bucket
 
-<<<<<<< HEAD
-def download_files_from_bucket(bucket_name, object_name, file_name): 
-    #object_name - file name in the bucket, file_name - path to download and the file name to save
-    
-    s3_client = get_s3_client()
-    try:
-        s3_client.download_file(bucket_name,object_name,file_name)   #Download to root directory
-    except ClientError as e:
-        if e.response['Error']['Code']=='404':
-            print ("Object not found")
-        else:
-            raise
-
-def list_all_file_names_from_bucket (bucket_name):
-    s3 = boto3.resource('s3')
-    bucket = s3.Bucket(bucket_name)
-    exists = True
-    try:
-        s3.meta.client.head_bucket(Bucket=bucket_name)
-    except ClientError as e:
-        # If it was a 404 error, then the bucket does not exist.
-        error_code = e.response['Error']['Code']
-        if error_code == '404':
-            exists = False
-
-        for item in bucket.objects.all():
-            print(item.file_name)
-=======
     :param object_name : string
     :param location : string
 
     """
     s3_client = get_s3_client()
     s3_client.download_file(AWS_STORAGE_BUCKET_NAME, object_name, location)
->>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87

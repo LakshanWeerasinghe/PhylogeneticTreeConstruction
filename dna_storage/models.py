@@ -15,12 +15,6 @@ class DNAFile(models.Model):
     object_key = models.CharField(max_length=100)
     is_available = models.BooleanField(default=False)
     size = models.IntegerField(blank=True, null=True)
-<<<<<<< HEAD
-    directory = models.ForeignKey(Directory, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return self.file_name
-=======
     directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
 
     def get_file_details(self):
@@ -32,4 +26,3 @@ class DNAFile(models.Model):
 
     def __str__(self):
         return self.file_name
->>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87
