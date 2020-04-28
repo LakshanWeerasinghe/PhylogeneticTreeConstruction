@@ -89,7 +89,7 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         kmer_list = convert_csv_column_to_list(
             csv_file_list_path+each_CSV_file)
 
-        k_lists.append(kmer_list)
+        # k_lists.append(kmer_list)
         dict = {}
         time1 = datetime.datetime.now()
 
@@ -105,7 +105,7 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         txt_f = open(kmer_forest_path + specie_name + ".txt", 'w+')
         txt_f.write(str(dict))
         txt_f.close()
-        all_dicts.append(dict)
+        # all_dicts.append(dict)
 
         count = 0
         for each_kmer in kmer_list:
