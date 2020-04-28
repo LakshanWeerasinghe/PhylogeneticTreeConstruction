@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'dna_storage.apps.DnaStorageConfig',
     'cluster.apps.ClusterConfig',
+    'neural_network.apps.NeuralNetworkConfig',
 
     # rest API implementation library for django
     'rest_framework',
@@ -113,10 +114,10 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+     }
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -148,13 +149,8 @@ DATABASES = {
     #     }
 }
 
-<<<<<<< HEAD
 #db_from_env = dj_database_url.config(conn_max_age=500) 
 #DATABASES['default'] = dj_database_url.config()
-=======
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'] = dj_database_url.config()
->>>>>>> c2e7188f07e30e02d8657cf1aa0d325a3b056f87
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
