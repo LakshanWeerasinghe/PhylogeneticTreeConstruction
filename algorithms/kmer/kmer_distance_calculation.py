@@ -85,16 +85,20 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         specie_name = each_CSV_file.split('_GCF')[0].split('_kmer')[0]
         print(specie_name, 'forest construction started')
         specie_list.append(specie_name)
+
+        print("Pandas DataFrame Started!.")
         kmer_list = convert_csv_column_to_list(
             csv_file_list_path+each_CSV_file)
-
+        print("Pandas DataFrame Finished!")
         k_lists.append(kmer_list)
         dict = {}
         time1 = datetime.datetime.now()
+        print(len(kmer_list))
+        print("Forest Addttion Started!")
         for each_kmer in kmer_list:
             add_kmer(dict, each_kmer)
 
-        time2 = datetime.datetime.now()
+        print("Forest Addition Finished!")
         time2 = datetime.datetime.now()
         print("forest construction finished : "+str(time2-time1))
         txt_f = open(kmer_forest_path + specie_name + ".txt", 'w+')
