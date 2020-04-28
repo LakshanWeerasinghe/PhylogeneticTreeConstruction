@@ -86,21 +86,19 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         print(specie_name, 'forest construction started')
         specie_list.append(specie_name)
 
-        print("Pandas DataFrame Started!.")
         kmer_list = convert_csv_column_to_list(
             csv_file_list_path+each_CSV_file)
-        print("Pandas DataFrame Finished!")
+
         k_lists.append(kmer_list)
         dict = {}
         time1 = datetime.datetime.now()
-        print(len(kmer_list))
-        print("Forest Addttion Started!")
+
         for each_kmer in kmer_list:
             add_kmer(dict, each_kmer)
 
-        print("Forest Addition Finished!")
         time2 = datetime.datetime.now()
         print("forest construction finished : "+str(time2-time1))
+
         txt_f = open(kmer_forest_path + specie_name + ".txt", 'w+')
         txt_f.write(str(dict))
         txt_f.close()
@@ -111,25 +109,25 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
             if(has_kmer(dict, each_kmer)):
                 count = count+1
 
-    time23 = datetime.datetime.now()
+    # time23 = datetime.datetime.now()
 
-    kmer_similarities = ""
-    for i in range(0, len(all_dicts)):
-        for j in range(i, len(all_dicts)):
-            summ = Summer()
-            print('Forest comparison Started ', specie_list[i], specie_list[j])
-            nested_tree_comparison(all_dicts[i], all_dicts[j], summ)
+    # kmer_similarities = ""
+    # for i in range(0, len(all_dicts)):
+    #     for j in range(i, len(all_dicts)):
+    #         summ = Summer()
+    #         print('Forest comparison Started ', specie_list[i], specie_list[j])
+    #         nested_tree_comparison(all_dicts[i], all_dicts[j], summ)
 
-            intersection = (len(k_lists[i]) - summ.summing)
-            union = (len(k_lists[j]) + summ.summing)
+    #         intersection = (len(k_lists[i]) - summ.summing)
+    #         union = (len(k_lists[j]) + summ.summing)
 
-            time33 = datetime.datetime.now()
-            print('Forest comparison Finished')
-            print('distance', specie_list[i],
-                  specie_list[j], intersection / union)
+    #         time33 = datetime.datetime.now()
+    #         print('Forest comparison Finished')
+    #         print('distance', specie_list[i],
+    #               specie_list[j], intersection / union)
 
-            new_line = file_dict[specie_list[i]] + ',' + \
-                file_dict[specie_list[j]] + ',' + str(intersection/union)+'\n'
-            kmer_similarities += new_line
-            print('Elapsed time for cosmparison', (time33 - time23))
-    return kmer_similarities
+    #         new_line = file_dict[specie_list[i]] + ',' + \
+    #             file_dict[specie_list[j]] + ',' + str(intersection/union)+'\n'
+    #         kmer_similarities += new_line
+    #         print('Elapsed time for cosmparison', (time33 - time23))
+    return True
