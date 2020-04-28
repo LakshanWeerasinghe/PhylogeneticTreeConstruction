@@ -138,10 +138,18 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
     return True
 
 
+def readDict(path):
+    print(path+" Reading Started!")
+    current_file = open(path, "r")
+    contents = current_file.read()
+    dictionary = ast.literal_eval(contents)
+    current_file.close()
+    return dictionary
+
+
 def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
     time23 = datetime.datetime.now()
     specie_list = []
-    all_dicts = []
     k_lists = []
 
     CSVFileList = os.listdir(csv_file_list_path)
@@ -162,22 +170,19 @@ def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
     SpeciesFileList.sort()
 
     for path in SpeciesFileList:
-        current_file = open(kmer_forest_path+path, "r")
         specie_list.append(path.split(".")[0])
-        contents = current_file.read()
-        dictionary = ast.literal_eval(contents)
-        all_dicts.append(dictionary)
-        current_file.close()
 
-    print("Dictonary Appending Finished")
     kmer_similarities = ""
 
-    for i in range(0, len(all_dicts)):
-        for j in range(i, len(all_dicts)):
+    for i in range(0, len(SpeciesFileList)):
+        print(i)
+        i_dict = readDict(kmer_forest_path+SpeciesFileList[i]+".txt")
+        for j in range(i, len(SpeciesFileList)):
+            j_dict = readDict(kmer_forest_path+SpeciesFileList[i]+".txt")
             summ = Summer()
             print('Forest comparison Started ',
                   specie_list[i], specie_list[j])
-            nested_tree_comparison(all_dicts[i], all_dicts[j], summ)
+            nested_tree_comparison(i_dict, j_dict, summ)
 
             intersection = (len(k_lists[i]) - summ.summing)
             union = (len(k_lists[j]) + summ.summing)
