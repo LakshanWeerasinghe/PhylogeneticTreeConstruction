@@ -162,13 +162,12 @@ def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
     SpeciesFileList.sort()
 
     for path in SpeciesFileList:
-        if path.is_file():
-            current_file = open(kmer_forest_path+path, "r")
-            specie_list.append(path.split(".")[0])
-            contents = current_file.read()
-            dictionary = ast.literal_eval(contents)
-            all_dicts.append(dictionary)
-            current_file.close()
+        current_file = open(kmer_forest_path+path, "r")
+        specie_list.append(path.split(".")[0])
+        contents = current_file.read()
+        dictionary = ast.literal_eval(contents)
+        all_dicts.append(dictionary)
+        current_file.close()
 
     print("Dictonary Appending Finished")
     kmer_similarities = ""
