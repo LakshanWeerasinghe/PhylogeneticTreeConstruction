@@ -176,9 +176,9 @@ def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
 
     for i in range(0, len(SpeciesFileList)):
         print(i)
-        i_dict = readDict(kmer_forest_path+SpeciesFileList[i]+".txt")
+        i_dict = readDict(kmer_forest_path+SpeciesFileList[i])
         for j in range(i, len(SpeciesFileList)):
-            j_dict = readDict(kmer_forest_path+SpeciesFileList[j]+".txt")
+            j_dict = readDict(kmer_forest_path+SpeciesFileList[j])
             summ = Summer()
             print('Forest comparison Started ',
                   specie_list[i], specie_list[j])
