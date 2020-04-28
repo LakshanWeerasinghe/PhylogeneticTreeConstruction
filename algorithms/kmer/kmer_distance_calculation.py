@@ -74,7 +74,6 @@ def nested_tree_comparison(dict1, dict2, summ):
 
 def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
     CSVFileList = os.listdir(csv_file_list_path)
-    CSVFileList.sort()
     specie_list = []
     time1 = datetime.datetime.now()
     print("started at : "+str(time1))
@@ -94,7 +93,6 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         for each_kmer in kmer_list:
             add_kmer(dict, each_kmer)
 
-        time2 = datetime.datetime.now()
         time2 = datetime.datetime.now()
         print("forest construction finished : "+str(time2-time1))
         txt_f = open(kmer_forest_path + specie_name + ".txt", 'w+')
