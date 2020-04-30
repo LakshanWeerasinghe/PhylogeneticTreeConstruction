@@ -16,7 +16,7 @@ from dna_storage.models import Directory
 from dna_storage.services import download_files_from_bucket, upload_file
 from app.settings import BASE_DIR
 from algorithms.kmer.csv_operations import text_to_csv
-from algorithms.kmer.kmer_distance_calculation import kmer_distance_main
+from algorithms.kmer.kmer_distance_calculation import kmer_distance_main, comparison_of_forests
 from algorithms.kmer.kmedoid_clustering_kmer import start_kmedoid_kmer
 
 # celery
@@ -285,8 +285,11 @@ def generate_distance_matrix_using_kmer_task(process_id, defaultUser=False):
                 CSV_Path=process_csv_results_path)
 
     # create the kmer forest and get the kmer similarites
-    kmer_similarities = kmer_distance_main(csv_file_list_path=process_csv_results_path,
-                                           kmer_forest_path=process_kmer_forests_path, file_dict=file_dict)
+    kmer_distance_main(csv_file_list_path=process_csv_results_path,
+                       kmer_forest_path=process_kmer_forests_path, file_dict=file_dict)
+
+    kmer_similarities = comparison_of_forests(csv_file_list_path=process_csv_results_path,
+                                              kmer_forest_path=process_kmer_forests_path, file_dict=file_dict)
 
     # save results in results table
     result = DNASimilaritiesResult(process=process, result=kmer_similarities)
