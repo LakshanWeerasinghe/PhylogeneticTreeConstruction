@@ -2,11 +2,12 @@ import ast
 import os
 import numpy as np
 def feature_extract(kmer_forests_path):
-    #kmer_forests_path = "/mnt/c/Users/user/Projects/Git/Phylogenetic_tree_construction/Genetic_Distance_Calculation/kmer/kmer_forests/"
-    extracted_features_path = "/mnt/c/Users/user/Projects/Git/Phylogenetic_tree_construction/Genetic_Distance_Calculation/neumerical_NN/extracted_features/"
+    #kmer_forests_path = "/mnt/c/Users/user/Projects/Git/Phylogenetic_tree_construction/PhylogeneticTreeConstruction/neural_network/kmer_forests/"
+    extracted_features_path = "/mnt/c/Users/user/Projects/Git/Phylogenetic_tree_construction/PhylogeneticTreeConstruction/neural_network/extracted_features/"
 
 
     forest_list = os.listdir(kmer_forests_path)
+    forest_list.remove( '__init__.py')
 
 
     def nested_ACTG_counting(val, nesting = 0):
@@ -43,5 +44,4 @@ def feature_extract(kmer_forests_path):
         new_text.write(str(nested_count_containers))
         new_text.close()
         # print(char_of_forest)
-
 
