@@ -7,6 +7,7 @@ from xlwt import Workbook
 import csv
 import pandas as pd
 from functools import reduce
+
 filePath = "sample_sequences/"
 kmerACTGFilePath = 'extracted_features/'
 ACTGcountFile = 'ACTGcount.txt'
@@ -152,5 +153,5 @@ def main():
 
 
 
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()

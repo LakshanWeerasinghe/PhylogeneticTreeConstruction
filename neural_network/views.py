@@ -19,9 +19,9 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_IN
 #import json
 
 
-from algorithms.nn.feature_extraction import feature_extract
-from algorithms.nn.NN_predicting_nearest_neighbour import predict_nearest_neighbour
-from algorithms.nn.Update_tree import update_tree
+from neural_network.algorithms.feature_extraction import feature_extract
+from neural_network.algorithms.NN_predicting_nearest_neighbour import predict_nearest_neighbour
+from neural_network.algorithms.Update_tree import update_tree
 
 
 from app.settings import DEFAULT_USERNAME

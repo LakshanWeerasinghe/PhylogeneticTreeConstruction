@@ -1,2 +1,5 @@
 /env
 /.vscode
+/neural_network/extracted_features/*
+/neural_network/kmer_forests/*
+/neural_network/sample_sequences/*
