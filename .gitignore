@@ -3,3 +3,9 @@
 /neural_network/extracted_features/*
 /neural_network/kmer_forests/*
 /neural_network/sample_sequences/*
+/neural_network/additional_files/*
+
+!**/__init__.py
+!/neural_network/additional_files/model.json
+!/neural_network/additional_files/model.h5
+!/neural_network/additional_files/model.h5

@@ -12,8 +12,8 @@ from sklearn.model_selection import train_test_split
 import keras.backend as K
 import tensorflow as tf
 
-def predict_nearest_neighbour(training_data): #'Training_Data.csv'
-    train_df = pd.read_csv(training_data)
+def predict_nearest_neighbour(): 
+    train_df = pd.read_csv('additional_files/Training_Data.csv')
     def norm(x,stats):
         return (x - stats['mean']) / stats['std']
     train_stats = {'mean':train_df.mean(),'std': train_df.std()}
@@ -78,9 +78,9 @@ def predict_nearest_neighbour(training_data): #'Training_Data.csv'
     print(results)
 
     model_json = model.to_json()
-    with open ('model.json','w') as json_file:
+    with open ('additional_files/model.json','w') as json_file:
         json_file.write(model_json)
-    model.save_weights("model.h5")
+    model.save_weights("additional_files/model.h5")
     print("Saved model to disk")
 
     prediction = model.predict(X_test)

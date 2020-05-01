@@ -11,8 +11,8 @@ import tensorflow as tf
 
 from keras.models import model_from_json
 
-def update_tree(json_object):
-  json_file = open(json_object,'r')
+def update_tree():
+  json_file = open("additional_files/model.json",'r')
   accepted_diff = 0.09
   def linear_regression_equality(y_true, y_pred):
       diff = K.abs(y_true-y_pred)
@@ -23,12 +23,12 @@ def update_tree(json_object):
   json_file.close()
 
   loaded_model = model_from_json(loaded_model_json)
-  loaded_model.load_weights("model.h5")
+  loaded_model.load_weights("additional_files/model.h5")
   print("Loaded model from disk")
 
   loaded_model.compile(loss='mean_squared_error', optimizer='adam', metrics=[linear_regression_equality])
 
-  predict_data = pd.read_csv('Prediction_Data.csv')
+  predict_data = pd.read_csv('additional_files/Prediction_Data.csv')
 
 
   New_specie = predict_data['DNA 1'].values[0]

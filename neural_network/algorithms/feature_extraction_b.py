@@ -2,22 +2,23 @@ import os
 import xlwt
 from xlwt import Workbook
 
-def feature_feature_b(file_path):
-    #filePath = "sample_sequences/"
+def feature_feature_b():
+    filePath = "sample_sequences/"
     # wb = Workbook()
     # sheet1 = wb.add_sheet('ACTG differences')
     # sheet2 = wb.add_sheet('ACTG counts')
 
     fileNameArray = []
-    for filename in os.listdir(file_path):
+    for filename in os.listdir(filePath):
         fileNameArray.append(filename)
+    fileNameArray.remove( '__init__.py')
     print(fileNameArray)
 
     counts = []
     sheet2Row = 0
     for fileName in fileNameArray:
 
-        file1 = open(file_path + fileName, "r")
+        file1 = open(filePath + fileName, "r")
         dnaSet = file1.read()
 
         countA = 0;
@@ -47,7 +48,7 @@ def feature_feature_b(file_path):
         counts.append([fileName,[countA, countC, countT, countG]]);
         # sheet2Row = sheet2Row + 1
 
-    countText = open('ACTGcount.txt', 'w')
+    countText = open('additional_files/ACTGcount.txt', 'w')
     countText.write(str(counts))
     countText.close();
 

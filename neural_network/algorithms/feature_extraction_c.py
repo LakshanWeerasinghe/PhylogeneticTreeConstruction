@@ -8,15 +8,9 @@ import csv
 import pandas as pd
 from functools import reduce
 
-filePath = "sample_sequences/"
-kmerACTGFilePath = 'extracted_features/'
-ACTGcountFile = 'ACTGcount.txt'
-new_specie_file = 'Acetobacter_pasteurianus_IFO_3283_26_uid158531_NC_017130.fna'
-
-
-
 
 def compareKmerACTG(filename1, filename2):
+    kmerACTGFilePath = 'extracted_features/'
 
     kmerDiffArray = []
     file1 = open(kmerACTGFilePath + filename1[:-4]+'.txt','r')
@@ -43,7 +37,7 @@ def compareKmerACTG(filename1, filename2):
     return kmerDiffArray
 
 def compareACTGtext(filename1, filename2):
-    openFile = open(ACTGcountFile, 'r')
+    openFile = open('additional_files/ACTGcount.txt', 'r')
     data = openFile.read()
 
     countArray = ast.literal_eval(data)
@@ -69,7 +63,9 @@ def compareACTGtext(filename1, filename2):
 
 
 
-def main():
+def main(new_species_file_name):
+    filePath = "sample_sequences/"
+    new_specie_file = new_species_file_name
     totStartTime = time.time();
     fileIndex = 1
     fileNameArray = []
@@ -77,7 +73,7 @@ def main():
         if filename != new_specie_file:
             fileNameArray.append(filename)
             fileIndex += 1
-
+    fileNameArray.remove( '__init__.py')
     print(fileNameArray)
 
 
@@ -85,7 +81,7 @@ def main():
     # fo= open('specyhashes.txt', 'r')
     # f1 = fo.readlines()
 
-    fo = open('ACTGcount.txt', 'r')
+    fo = open('additional_files/ACTGcount.txt', 'r')
     f1 = fo.readlines()
 
 
@@ -143,15 +139,11 @@ def main():
             # f.writelines("%s\n" % ("jaccard similarity between "+ f_item_i[0] +" and " + f_item_j[0] +"is : " + str(jaccard_similarity(f_item_i[1], f_item_j[1]))) )
             # f.close()
     # csv_file = open('p_data.csv',mode=)
-    wb.save('Attributesv.xls')
+    wb.save('additional_files/Attributesv.xls')
 
-    xls_file = pd.read_excel('Attributesv.xls', sheet_name="Attributes")
-    xls_file.to_csv('Prediction_Data.csv', index=False)
+    xls_file = pd.read_excel('additional_files/Attributesv.xls', sheet_name="Attributes")
+    xls_file.to_csv('additional_files/Prediction_Data.csv', index=False)
     print ("time for comparing = ", time.time()-comparingStartTime)
 
     print("~~~~~~~~~~~~~~~~~~~finished~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-
-
-#if __name__ == '__main__':
-#    main()
