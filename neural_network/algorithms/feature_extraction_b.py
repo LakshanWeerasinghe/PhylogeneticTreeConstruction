@@ -2,8 +2,8 @@ import os
 import xlwt
 from xlwt import Workbook
 
-def feature_feature_b():
-    filePath = "sample_sequences/"
+def feature_extraction_b():
+    filePath = "../sample_sequences/"
     # wb = Workbook()
     # sheet1 = wb.add_sheet('ACTG differences')
     # sheet2 = wb.add_sheet('ACTG counts')

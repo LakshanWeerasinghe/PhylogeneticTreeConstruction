@@ -10,7 +10,7 @@ from functools import reduce
 
 
 def compareKmerACTG(filename1, filename2):
-    kmerACTGFilePath = 'extracted_features/'
+    kmerACTGFilePath = '../extracted_features/'
 
     kmerDiffArray = []
     file1 = open(kmerACTGFilePath + filename1[:-4]+'.txt','r')
@@ -64,7 +64,7 @@ def compareACTGtext(filename1, filename2):
 
 
 def main(new_species_file_name):
-    filePath = "sample_sequences/"
+    filePath = "../sample_sequences/"
     new_specie_file = new_species_file_name
     totStartTime = time.time();
     fileIndex = 1
