@@ -2,8 +2,8 @@ import os
 import xlwt
 from xlwt import Workbook
 
-def feature_extraction_b():
-    filePath = "../sample_sequences/"
+def feature_extraction_b(filePath,additional_file_path):
+    #filePath = "../sample_sequences/"
     # wb = Workbook()
     # sheet1 = wb.add_sheet('ACTG differences')
     # sheet2 = wb.add_sheet('ACTG counts')
@@ -11,7 +11,6 @@ def feature_extraction_b():
     fileNameArray = []
     for filename in os.listdir(filePath):
         fileNameArray.append(filename)
-    fileNameArray.remove( '__init__.py')
     print(fileNameArray)
 
     counts = []
@@ -48,7 +47,7 @@ def feature_extraction_b():
         counts.append([fileName,[countA, countC, countT, countG]]);
         # sheet2Row = sheet2Row + 1
 
-    countText = open('additional_files/ACTGcount.txt', 'w')
+    countText = open(additional_file_path+'/ACTGcount.txt', 'w')
     countText.write(str(counts))
     countText.close();
 

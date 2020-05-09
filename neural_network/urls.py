@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import generate_feature_extraction
+from .views import update_tree
 
 """
     url patterns are :
@@ -8,5 +8,5 @@ from .views import generate_feature_extraction
 """
 
 urlpatterns = [
-    path('features/', generate_feature_extraction, name='feature'),
+    path('update_tree/', update_tree, name='update'),
 ]

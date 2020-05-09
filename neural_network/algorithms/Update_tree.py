@@ -11,8 +11,8 @@ import tensorflow as tf
 
 from keras.models import model_from_json
 
-def update_tree():
-  json_file = open("additional_files/model.json",'r')
+def update_tree(additional_files):
+  json_file = open(additional_files+"/model.json",'r')
   accepted_diff = 0.09
   def linear_regression_equality(y_true, y_pred):
       diff = K.abs(y_true-y_pred)
@@ -23,12 +23,12 @@ def update_tree():
   json_file.close()
 
   loaded_model = model_from_json(loaded_model_json)
-  loaded_model.load_weights("additional_files/model.h5")
+  loaded_model.load_weights(additional_files+"/model.h5")
   print("Loaded model from disk")
 
   loaded_model.compile(loss='mean_squared_error', optimizer='adam', metrics=[linear_regression_equality])
 
-  predict_data = pd.read_csv('additional_files/Prediction_Data.csv')
+  predict_data = pd.read_csv(additional_files+'/Prediction_Data.csv')
 
 
   New_specie = predict_data['DNA 1'].values[0]
@@ -63,7 +63,7 @@ def update_tree():
 
 
   # tree updation visualization
-  with open('../kmedoid/kmer_tree.json') as f:
+  with open(additional_files+'/kmer_tree.json') as f:
     data = json.load(f)
 
   # print data;
@@ -84,5 +84,5 @@ def update_tree():
   with open('updated_tree.json', 'w') as outfile:
     json.dump(data, outfile)
 
-  filename = os.getcwd()+'/' + 'Updated_Tree_visualization.html'
-  webbrowser.open_new_tab(filename)
+  filename = additional_files+'/' + 'Updated_Tree_visualization.html'
+  return filename

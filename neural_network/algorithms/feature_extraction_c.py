@@ -9,8 +9,8 @@ import pandas as pd
 from functools import reduce
 
 
-def compareKmerACTG(filename1, filename2):
-    kmerACTGFilePath = '../extracted_features/'
+def compareKmerACTG(filename1, filename2,kmerACTGFilePath):
+    #kmerACTGFilePath = '../extracted_features/'
 
     kmerDiffArray = []
     file1 = open(kmerACTGFilePath + filename1[:-4]+'.txt','r')
@@ -36,8 +36,8 @@ def compareKmerACTG(filename1, filename2):
 
     return kmerDiffArray
 
-def compareACTGtext(filename1, filename2):
-    openFile = open('additional_files/ACTGcount.txt', 'r')
+def compareACTGtext(filename1, filename2,additional_files):
+    openFile = open(additional_files+'/ACTGcount.txt', 'r')
     data = openFile.read()
 
     countArray = ast.literal_eval(data)
@@ -63,8 +63,8 @@ def compareACTGtext(filename1, filename2):
 
 
 
-def main(new_species_file_name):
-    filePath = "../sample_sequences/"
+def Make_attributes(new_species_file_name,filePath,additional_files,kmerACTGFilePath):
+    #filePath = "../sample_sequences/"
     new_specie_file = new_species_file_name
     totStartTime = time.time();
     fileIndex = 1
@@ -73,7 +73,6 @@ def main(new_species_file_name):
         if filename != new_specie_file:
             fileNameArray.append(filename)
             fileIndex += 1
-    fileNameArray.remove( '__init__.py')
     print(fileNameArray)
 
 
@@ -81,7 +80,7 @@ def main(new_species_file_name):
     # fo= open('specyhashes.txt', 'r')
     # f1 = fo.readlines()
 
-    fo = open('additional_files/ACTGcount.txt', 'r')
+    fo = open(additional_files+'/ACTGcount.txt', 'r')
     f1 = fo.readlines()
 
 
@@ -109,7 +108,7 @@ def main(new_species_file_name):
         print(f_item_i,f_item_j)
         # print("jaccard similarity between "+ f_item_i[0] +" and " + f_item_j[0] +"is : " ,jaccard_similarity(f_item_i[1], f_item_j[1]))
 
-        actgDiffs = compareACTGtext(f_item_i, f_item_j)
+        actgDiffs = compareACTGtext(f_item_i, f_item_j,additional_files)
         print(actgDiffs)
         sheet1.write(sheet1Row, 0, f_item_i)
         sheet1.write(sheet1Row, 1, f_item_j)
@@ -120,7 +119,7 @@ def main(new_species_file_name):
         sheet1.write(sheet1Row, 5, actgDiffs[3])
 
 
-        kmerDifferences = compareKmerACTG(f_item_i,f_item_j)
+        kmerDifferences = compareKmerACTG(f_item_i,f_item_j,kmerACTGFilePath)
         # diffs = []
         kmerDiffPrintColumn = 6
         for level in kmerDifferences[3:-2]:#skipping first three levels
@@ -139,10 +138,10 @@ def main(new_species_file_name):
             # f.writelines("%s\n" % ("jaccard similarity between "+ f_item_i[0] +" and " + f_item_j[0] +"is : " + str(jaccard_similarity(f_item_i[1], f_item_j[1]))) )
             # f.close()
     # csv_file = open('p_data.csv',mode=)
-    wb.save('additional_files/Attributesv.xls')
+    wb.save(additional_files+'/Attributesv.xls')
 
-    xls_file = pd.read_excel('additional_files/Attributesv.xls', sheet_name="Attributes")
-    xls_file.to_csv('additional_files/Prediction_Data.csv', index=False)
+    xls_file = pd.read_excel(additional_files+'/Attributesv.xls', sheet_name="Attributes")
+    xls_file.to_csv(additional_files+'/Prediction_Data.csv', index=False)
     print ("time for comparing = ", time.time()-comparingStartTime)
 
     print("~~~~~~~~~~~~~~~~~~~finished~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
