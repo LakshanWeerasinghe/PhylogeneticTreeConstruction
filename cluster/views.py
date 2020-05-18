@@ -14,6 +14,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_IN
 # models
 from dna_storage.models import DNAFile, Directory
 from .models import *
+from neural_network.models import *
 
 # serializers
 from .serializers import *
@@ -27,6 +28,7 @@ from algorithms.distance_matrix import distanceMatrixGenerator
 
 from dsk.bin.kp import run_kmer_sh_file
 from app.settings import DEFAULT_USERNAME
+from cluster.util import *
 
 
 @api_view(["POST"])
@@ -195,7 +197,7 @@ def phylogenetic_tree_generate_view(request):
 
     """
 
-    result_id = request.data["result_id"]
+    matrix_process_id = request.data["matrix_process_id"]
     title = request.data["title"]
     process_type = request.data["type"]
 
@@ -204,31 +206,41 @@ def phylogenetic_tree_generate_view(request):
     if serializer.is_valid():
         # user instance
         user = User.objects.get(username=request.user)
-        similarities_result = DNASimilaritiesResult(id=result_id)
+        matrix_process = MatrixProcess.objects.get(id=matrix_process_id)
+
+        process = PhylogeneticTreeProcess(
+            title=title, type=1, status=1, user=user)
+        process.save()
 
         if process_type == "LSH":
 
-            # create a new process and save
-            process = PhylogeneticTreeProcess(title=title, type=1, status=1,
-                                              user=user, similarities_result=similarities_result)
-            process.save()
+            tree_creation_process = PhylogeneticTreeCreation(
+                type=1, process=process, matrix_process=matrix_process)
+            tree_creation_process.save()
 
             # add the result to the Celery
             generate_tree_using_lsh_kmedoid.delay(
-                process_id=process.id, result_id=result_id)
+                process_id=process.id)
 
-            return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
         else:
             # create a new process and save
-            process = PhylogeneticTreeProcess(
-                title=title, type=2, status=1, user=user, similarities_result=similarities_result)
-            process.save()
+            tree_creation_process = PhylogeneticTreeCreation(
+                type=2, process=process, matrix_process=matrix_process)
+            tree_creation_process.save()
 
             # add the result to the Celery
             generate_tree_using_kmer_kmedoid.delay(
-                process_id=process.id, result_id=result_id)
+                process_id=process.id)
 
-            return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+        process_details = {
+            "process_id": process.id,
+            "title": process.title,
+            "process_type":  TreeProcessType.get_key(process.type),
+            "status": ProcessStatusTypes.get_key(process.status),
+            "method": ProcessTypes.get_key(tree_creation_process.type)
+        }
+
+        return Response({"process": process_details}, status=HTTP_200_OK)
     else:
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
@@ -245,8 +257,12 @@ def get_process_matrix_result_view(request):
     """
 
     process_id = request.data['process_id']
+    username = request.user
 
-    serializer = MatrixResultRequestSerializer(data=request.data)
+    data = request.data
+    data["username"] = username
+
+    serializer = MatrixResultRequestSerializer(data=data)
     if serializer.is_valid():
         process = MatrixProcess.objects.get(id=process_id)
         result = DNASimilaritiesResult.objects.get(process=process)
@@ -255,7 +271,7 @@ def get_process_matrix_result_view(request):
         response = {}
 
         response["process"] = process.get_process_details_as_dict()
-        response["result_id"] = result.id
+        response["matrix_result_id"] = result.id
         response["matrix"] = result_matrix
 
         return Response(response, status=HTTP_200_OK)
@@ -281,9 +297,34 @@ def get_process_tree_result_view(request):
         process = PhylogeneticTreeProcess.objects.get(id=process_id)
         tree_result = PhylogeneticTreeResult.objects.get(process=process)
 
-        response = {}
+        response = {
+            "process_id": process.id,
+            "title": process.title,
+            "process_type": TreeProcessType.get_key(process.type),
+            "status": ProcessStatusTypes.get_key(process.status)
+        }
 
-        response["process"] = process.get_process_details_as_dict()
+        dna_files = []
+        tree_creation = PhylogeneticTreeCreation.objects.get(process=process)
+        dna_objects = tree_creation.matrix_process.dna_files.all()
+
+        for dna in dna_objects:
+            check_default = dna
+            dna_files.append(dna.file_name)
+
+        response["method"] = ProcessTypes.get_key(tree_creation.type)
+        if process.type == 2:
+            updated_tree = PhylogeneticTreeUpdate.objects.get(process=process)
+            dnas_updated = updated_tree.dna_files.all()
+            for dna in dnas_updated:
+                dna_files.append(dna.file_name)
+
+        if check_default.directory.name == DEFAULT_USERNAME:
+            response["is_default_user"] = True
+        else:
+            response["is_default_user"] = False
+
+        response["file_names"] = dna_files
         response["result_id"] = tree_result.id
         response["tree"] = tree_result.tree
 
@@ -313,7 +354,22 @@ def get_user_processes_view(request):
         matrix_process_list.append(process.get_process_details_as_dict())
 
     for process in tree_processes:
-        tree_proccess_list.append(process.get_process_details_as_dict())
+
+        process_details = {
+            "process_id": process.id,
+            "title": process.title,
+            "process_type": process.type,
+            "status": process.status,
+        }
+
+        tree_creation = PhylogeneticTreeCreation.objects.get(process=process)
+
+        if process.type == 1:
+            process_details["method"] = tree_creation.type
+        else:
+            response["method"] = ""
+
+        tree_proccess_list.append(process_details)
 
     response = {"matrix_processes": matrix_process_list,
                 "tree_processes": tree_proccess_list}

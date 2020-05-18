@@ -2,7 +2,8 @@ import os
 import xlwt
 from xlwt import Workbook
 
-def feature_extraction_b(filePath,additional_file_path):
+
+def feature_extraction_b(filePath, additional_file_path):
     #filePath = "../sample_sequences/"
     # wb = Workbook()
     # sheet1 = wb.add_sheet('ACTG differences')
@@ -20,14 +21,13 @@ def feature_extraction_b(filePath,additional_file_path):
         file1 = open(filePath + fileName, "r")
         dnaSet = file1.read()
 
-        countA = 0;
-        countC = 0;
-        countT = 0;
-        countG = 0;
-
+        countA = 0
+        countC = 0
+        countT = 0
+        countG = 0
 
         for i in dnaSet:
-            if(i=='A'):
+            if(i == 'A'):
                 countA = countA+1
 
             if (i == 'C'):
@@ -44,15 +44,15 @@ def feature_extraction_b(filePath,additional_file_path):
         # sheet2.write(sheet2Row, 2, countC)
         # sheet2.write(sheet2Row, 3, countT)
         # sheet2.write(sheet2Row, 4, countG)
-        counts.append([fileName,[countA, countC, countT, countG]]);
+        counts.append([fileName, [countA, countC, countT, countG]])
         # sheet2Row = sheet2Row + 1
 
     countText = open(additional_file_path+'/ACTGcount.txt', 'w')
     countText.write(str(counts))
-    countText.close();
+    countText.close()
 
-    print (counts)
-    excelRow = 0;
+    print(counts)
+    excelRow = 0
     # for i in range(0, len(counts)-1):
     #     for j in range (i+1, len(counts)):
     #         diffA = counts[i][1][0] - counts[j][1][0]
@@ -68,6 +68,4 @@ def feature_extraction_b(filePath,additional_file_path):
     #         sheet1.write(excelRow, 5, abs(diffG))
     #
     #         excelRow = excelRow + 1
-
-
     # wb.save('ACTG_differences.xls')

@@ -105,10 +105,10 @@ def main(process_id, file_dict):
 
     fileNameArray = []
 
-    filePath = BASE_DIR + "/storage/" + str(process_id) + "/DNA_SEQUNCES/"
-    specyhashesFilePath = BASE_DIR + "/storage/" + \
+    filePath = "/tmp/Matrix/" + str(process_id) + "/DNA_SEQUNCES/"
+    specyhashesFilePath = "/tmp/Matrix/" + \
         str(process_id) + '/' + 'specyhashes.txt'
-    lshSimilarityFilePath = BASE_DIR + "/storage/" + \
+    lshSimilarityFilePath = "/tmp/Matrix/" + \
         str(process_id) + '/' + 'LSH_similarity.txt'
 
     for filename in os.listdir(filePath):

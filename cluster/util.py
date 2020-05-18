@@ -64,9 +64,9 @@ class StatusTypes(IntEnum):
                 return keys.name
 
 
-class ProcessType(IntEnum):
-    MATRIX_GENERATION = 1
-    TREE_GENERATION = 2
+class TreeProcessType(IntEnum):
+    TREE_CREATION = 1
+    TREE_UPDATION = 2
 
     @classmethod
     def choises(cls):

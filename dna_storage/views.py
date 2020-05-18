@@ -15,6 +15,7 @@ from .services import create_preassinged_url
 from .models import Directory, DNAFile
 from .serializers import DNAFileSerializer, DNAFileUploadedSerializer
 from app.settings import DEFAULT_USERNAME
+from dna_storage.tasks import generate_kmer_forest
 
 # Todo
 # 1. give the aws s3 url to upload the dna sequences - Done
@@ -39,8 +40,9 @@ def get_dna_sequence_upload_url_view(request):
 
     if dna_file_serializer.is_valid():
 
+        directory_full_path = directory_name + "/dna_files"
         url = create_preassinged_url(
-            directory_name=directory_name, object_name=data['object_key'])
+            directory_name=directory_full_path, object_name=data['object_key'])
 
         if not url is None:
             dna_file_serializer.save()
@@ -66,8 +68,10 @@ def dna_file_uploaded_view(request):
         dna_file_instance = DNAFile.objects.get(
             file_name=file_name, directory=directory)
         if data['is_uploaded'] == 1:
-            dna_file_instance.is_available = True
-            dna_file_instance.save()
+            if user.username == DEFAULT_USERNAME:
+                generate_kmer_forest.delay(dna_file_instance.id, True)
+            else:
+                generate_kmer_forest.delay(dna_file_instance.id, False)
         else:
             dna_file_instance.delete()
 

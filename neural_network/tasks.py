@@ -1,22 +1,28 @@
+from __future__ import absolute_import, unicode_literals
+
 import time
 from app.settings import DEFAULT_USERNAME
 from app.settings import BASE_DIR
 
 from cluster.services import *
 
-from dna_storage.services import download_files_from_bucket,upload_file
-from dna_storage.models import Directory
+from dna_storage.services import download_files_from_bucket, upload_file
 
 
 from neural_network.algorithms.feature_extraction_a import feature_extract
 from neural_network.algorithms.feature_extraction_b import feature_extraction_b
 from neural_network.algorithms.feature_extraction_c import Make_attributes
-from neural_network.algorithms.NN_predicting_nearest_neighbour import predict_nearest_neighbour
 from neural_network.algorithms.Update_tree import update_tree
+
+from dna_storage.models import *
+from neural_network.models import *
+from cluster.models import *
+
+from celery import shared_task
 
 
 @shared_task
-def update_phylogenetic_tree(process_id,new_species_file_name, defaultUser=False):
+def update_phylogenetic_tree(process_id, new_species_file_name, defaultUser=False):
     """
     This method runs as a background process in Celery workers consists of nine sub tasks
 
@@ -30,7 +36,7 @@ def update_phylogenetic_tree(process_id,new_species_file_name, defaultUser=False
         8. Delete the process directory
 
     :param : process_id : int
-    :returns : True 
+    :returns : True
 
     """
     processStartingTime = time.time()
@@ -69,7 +75,13 @@ def update_phylogenetic_tree(process_id,new_species_file_name, defaultUser=False
     create_directory(process_additional_files_path)
 
     # process instance
-    process = MatrixProcess.objects.get(id=process_id)
+    process = PhylogeneticTreeProcess.objects.get(id=process_id)
+
+    tree_updation_process = PhylogeneticTreeUpdate.objects.get(process=process)
+
+    tree_creation_process = tree_updation_process.creation_process
+
+    matrix_process = tree_creation_process.matrix_process
 
     # S3 bucket directory name
     if defaultUser:
@@ -78,20 +90,12 @@ def update_phylogenetic_tree(process_id,new_species_file_name, defaultUser=False
         dna_directory = Directory.objects.get(user=process.user)
         dna_directory_name = dna_directory.name
 
-    dna_files = process.dna_files.all()
+    kmer_forests = []
+    for dna in matrix_process.dna_files.all():
 
-    # create a dictonary
-    # key : object key without extension
-    # value : file name (spieces name)
-    file_dict = {}
-
-    print(dna_files)
-    # for every file in the process
-    # download the file to a specific location
-    for dna in dna_files:
-
-        # ex : username/dnafile.fna
-        object_name = dna_directory_name + "/" + dna.object_key
+        kmer_forest = KmerForest.objects.get(dna_file=dna)
+        kmer_forests.append(kmer_forest)
+        object_name = dna_directory_name + "/dna_files/" + dna.object_key
 
         # location where the file is downloaded
         location = process_dna_file_directory_path + dna.object_key
@@ -105,43 +109,69 @@ def update_phylogenetic_tree(process_id,new_species_file_name, defaultUser=False
         print("Time for downloading " + str(object_name),
               time.time() - downloadStartingTime)
 
-        file_dict[dna.object_key[:-4]] = dna.file_name
+    for dna in tree_updation_process.dna_files.all():
 
-        print(object_name)
+        kmer_forest = KmerForest.objects.get(dna_file=dna)
+        kmer_forests.append(kmer_forest)
+        object_name = dna_directory_name + "/dna_files/" + dna.object_key
+
+        # location where the file is downloaded
+        location = process_dna_file_directory_path + dna.object_key
+
+        downloadStartingTime = time.time()
+        print(str(object_name) + " Downloading Started.")
+
+        download_files_from_bucket(
+            object_name=object_name, location=location)
+
+        print("Time for downloading " + str(object_name),
+              time.time() - downloadStartingTime)
+
+    for kmer_forest in kmer_forests:
+        object_name = kmer_forest.location
+
+        # location where the file is downloaded
+        location = process_kmer_forests_directory_path + \
+            object_name.split("/")[-1]
+
+        downloadStartingTime = time.time()
+        print(str(object_name) + " Downloading Started.")
+
+        download_files_from_bucket(
+            object_name=object_name, location=location)
+
+        print("Time for downloading " + str(object_name),
+              time.time() - downloadStartingTime)
 
     print("Feature extraction started")
     # making the extracted feature files
     feature_extract(kmer_forests_path=process_kmer_forests_directory_path,
-        extracted_features_path=process_extracted_features_path)
+                    extracted_features_path=process_extracted_features_path)
 
     print("Feature extraction Finished")
 
     # creating the ACTG count file
-    feature_extraction_b(filePath=process_dna_file_directory_path,additional_file_path=process_additional_files_path)
+    feature_extraction_b(filePath=process_dna_file_directory_path,
+                         additional_file_path=process_additional_files_path)
 
     # creating the Prediction_Data.csv file
-    Make_attributes(new_species_file_name,filePath=process_dna_file_directory_path,
-        additional_files=process_additional_files_path,kmerACTGFilePath=process_extracted_features_path)
+    Make_attributes(new_species_file_name, filePath=process_dna_file_directory_path,
+                    additional_files=process_additional_files_path, kmerACTGFilePath=process_extracted_features_path)
 
-    #update the tree
-    updated_tree=update_tree(additional_files=process_additional_files_path)
+    phylo_tree = PhylogeneticTreeResult.objects.get(process=process)
+
+    # update the tree
+    updated_tree = update_tree(
+        additional_files=process_additional_files_path, tree=phylo_tree.tree)
+
+    print(updated_tree)
 
     # update the process status
+    phylo_tree.tree = updated_tree
+    phylo_tree.save()
+
     process.status = 2
     process.save()
-
-    object_name = "phylogenetic_trees/" + str(process_id) + "/" + str(updated_tree)
-
-    file_name = str(updated_tree)
-
-    is_uploaded = upload_file(file_name=file_name, object_name=object_name)
-
-    if is_uploaded:
-        #save the tree code
-        return True
-
-    # delete the process floder
-    # return True if success
 
     is_removed = remove_directory(path=process_directory_path)
 

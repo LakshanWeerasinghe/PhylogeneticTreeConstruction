@@ -16,6 +16,7 @@ class MatrixResultRequestSerializer(serializers.Serializer):
 
     """
     process_id = serializers.IntegerField()
+    username = serializers.CharField()
 
     def validate_process_id(self, id):
 
@@ -27,6 +28,9 @@ class MatrixResultRequestSerializer(serializers.Serializer):
         if process.status == 1:
             raise serializers.ValidationError(
                 "Distance Matrix Generation is still in Progress")
+
+    def validate(self, attrs):
+        pass
 
 
 class TreeResultRequestSerializer(serializers.Serializer):
@@ -55,10 +59,10 @@ class TreeCreationRequestSerializer(serializers.Serializer):
 
     """
     title = serializers.CharField(required=True)
-    result_id = serializers.IntegerField(required=True)
+    matrix_process_id = serializers.IntegerField(required=True)
     type = serializers.CharField(required=True)
 
-    def validate_result_id(self, id):
-        result = DNASimilaritiesResult.objects.filter(id=id)
-        if not result.exists():
-            raise serializers.ValidationError("This Result Doesn't exist!")
+    # def validate_result_id(self, id):
+    #     result = DNASimilaritiesResult.objects.filter(id=id)
+    #     if not result.exists():
+    #         raise serializers.ValidationError("This Result Doesn't exist!")

@@ -33,7 +33,7 @@ SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = int(os.environ.get("DEBUG", default=0))
-DEBUG = False
+DEBUG = True
 
 # These are the hosts that the server can run
 ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     # rest API implementation library for django
     'rest_framework',
     'rest_framework.authtoken',
+    # 'rest_framework_swagger',
 
     # celery
     'django_celery_results',
@@ -114,19 +115,19 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
-         'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-     }
-
     # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'dna_tree',
-    #     'USER': 'lakshan',
-    #     'PASSWORD': 'lakshan',
-    #     'HOST': 'db',
-    #     'PORT': '5432'
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'dna_tree',
+        'USER': 'lakshan',
+        'PASSWORD': 'lakshan',
+        'HOST': 'db',
+        'PORT': '5432'
+    }
 
     # 'default' : {
     #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
@@ -149,7 +150,7 @@ DATABASES = {
     #     }
 }
 
-#db_from_env = dj_database_url.config(conn_max_age=500) 
+#db_from_env = dj_database_url.config(conn_max_age=500)
 #DATABASES['default'] = dj_database_url.config()
 
 REST_FRAMEWORK = {
@@ -213,8 +214,8 @@ AWS_STORAGE_BUCKET_NAME = 'dnabank'
 
 # Celery configurations
 
-# CELERY_BROKER_URL = 'amqp://rabbitmq'
-CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
+CELERY_BROKER_URL = 'amqp://rabbitmq'
+# CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
 
 
 # CELERY_BROKER_URL = os.environ.get(
@@ -225,6 +226,6 @@ CELERY_CACHE_BACKEND = 'django-cache'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
-DEFAULT_USERNAME = "default_user"
+DEFAULT_USERNAME = "defaultuser"
 
 django_heroku.settings(locals())
