@@ -4,11 +4,12 @@ from .views import *
 """
     Urls pattens:
 
-        1. BASE_URL/matrix/generate/ : Create a Distance Matrix generation Process
-        2. BASE_URL/tree/generate/ : Create a Tree Generation Process
-        3. BASE_URL/matrix/result/ : get the Distance Matrix
-        4. BASE_URL/tree/result/ : get the Phylogenetric Tree
-        5. BASE_URL/allProcesses/ : get all Processes generate by a user
+        1. BASE_URL/cluster/matrix/generate/ : create distance matrix generation process.
+        2. BASE_URL/cluster/tree/generate/ : create tree generation Process
+        3. BASE_URL/cluster/matrix/result/ : get the distance Matrix
+        4. BASE_URL/cluster/tree/result/ : get the phylogenetric Tree
+        5. BASE_URL/cluster/allProcesses/ : get all processes generate by a user
+        6. BASE_URL/cluster/matrix/generate/default/ : create diatance matrix process using default files.
        
 """
 
@@ -27,7 +28,6 @@ urlpatterns = [
 
     # 4
     path('tree/result/', get_process_tree_result_view, name='tree_result'),
-    path("", test_view),
 
     # 5
     path('allProcesses/', get_user_processes_view, name="user_processes"),

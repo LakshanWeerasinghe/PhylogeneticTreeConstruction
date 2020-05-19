@@ -42,7 +42,10 @@ def update_tree(request):
     # process_id
     # file_name
 
-    tree_updation_request = PhylogeneticTreeUpdationRequest(data=request.data)
+    data = request.data
+    data["username"] = str(request.user)
+
+    tree_updation_request = PhylogeneticTreeUpdationRequest(data=data)
 
     if tree_updation_request.is_valid():
         tree_process = PhylogeneticTreeProcess.objects.get(

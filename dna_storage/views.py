@@ -17,16 +17,18 @@ from .serializers import DNAFileSerializer, DNAFileUploadedSerializer
 from app.settings import DEFAULT_USERNAME
 from dna_storage.tasks import generate_kmer_forest
 
-# Todo
-# 1. give the aws s3 url to upload the dna sequences - Done
-# 2. get the file deatils of the uploaded files
-# 3. give the default storage files
-# 4. view users own storage details
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_dna_sequence_upload_url_view(request):
+    """ 
+    Get the preassinged url to upload dna files 
+
+    :request param : file_name : String
+    :request param : object_key : String 
+    :request param : size : Integer
+
+    """
 
     data = request.data
 
@@ -38,9 +40,12 @@ def get_dna_sequence_upload_url_view(request):
 
     dna_file_serializer = DNAFileSerializer(data=data)
 
+    # validate request
     if dna_file_serializer.is_valid():
 
         directory_full_path = directory_name + "/dna_files"
+
+        # get url using boto3
         url = create_preassinged_url(
             directory_name=directory_full_path, object_name=data['object_key'])
 
@@ -55,19 +60,33 @@ def get_dna_sequence_upload_url_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def dna_file_uploaded_view(request):
+    """
+    Update the is_avilable field of DNAFile if uploading sucess else delete the DNAFile
+
+    :request param : file_name : String
+    :is_uploaded : 
+
+
+    """
 
     data = request.data
 
-    dna_file_uploaded_serializer = DNAFileUploadedSerializer(data=data)
     user = User.objects.get(username=request.user)
     directory = Directory.objects.get(user=user)
 
+    directory_name = getattr(directory, 'name')
+    data["directory"] = getattr(directory, 'id')
+
+    dna_file_uploaded_serializer = DNAFileUploadedSerializer(data=data)
+
+    # validate request
     if dna_file_uploaded_serializer.is_valid():
 
         file_name = data['file_name']
         dna_file_instance = DNAFile.objects.get(
             file_name=file_name, directory=directory)
-        if data['is_uploaded'] == 1:
+
+        if data['is_uploaded']:
             if user.username == DEFAULT_USERNAME:
                 generate_kmer_forest.delay(dna_file_instance.id, True)
             else:
@@ -84,6 +103,7 @@ def dna_file_uploaded_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_dna_bank_files(request):
+    """ Request to get the default DNA Files. """
 
     user = User.objects.get(username=DEFAULT_USERNAME)
     directory = Directory.objects.get(user=user)
@@ -104,6 +124,7 @@ def get_dna_bank_files(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_users_dna_file_details(request):
+    """ Request to get the DNA Files of the authenticated user. """
 
     user = User.objects.get(username=request.user)
     directory = Directory.objects.get(user=user)

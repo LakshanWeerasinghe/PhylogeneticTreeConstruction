@@ -1,8 +1,9 @@
 from __future__ import absolute_import, unicode_literals
-from celery import shared_task
 
 import time
 import os
+
+from celery import shared_task
 from cluster.services import create_directory, remove_directory
 from dna_storage.models import *
 from algorithms.kmer.kmer_distance_calculation import kmer_forest_generation
@@ -107,19 +108,18 @@ def generate_kmer_forest(file_id, defaultUser):
     kmer_forests = os.listdir(process_kmer_forests_path)
 
     for kmer_forest in kmer_forests:
-
-        print(dna_directory_name)
+        print("Kmer forest uploading started.")
         object_name = dna_directory_name + "/kmer_forest/" + str(kmer_forest)
 
         file_name = process_kmer_forests_path + str(kmer_forest)
 
-        print(file_name)
         is_uploaded = upload_file(file_name=file_name, object_name=object_name)
 
         if is_uploaded:
             kmer_forest_object = KmerForest(
                 dna_file=dna_file, location=object_name, kmer_count=kmer_count)
             kmer_forest_object.save()
+            print("Kmer Forest uploading Finished.")
 
     dna_file.is_available = True
     dna_file.save()

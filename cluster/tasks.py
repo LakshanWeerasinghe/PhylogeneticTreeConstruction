@@ -206,7 +206,7 @@ def generate_distance_matrix_using_kmer_task(process_id, defaultUser=False):
           str(process_id) + " Started.")
 
     # process directory path ex: BASE_DIR/storage/process_id/
-    directory_path = "/tmp/" + str(process_id) + "/"
+    directory_path = "/tmp/Matrix/" + str(process_id) + "/"
 
     # k-mer forests storing directory
     kmer_forests_path = directory_path + "kmer_forests/"
@@ -323,5 +323,5 @@ def generate_tree_using_kmer_kmedoid(process_id):
 
     print("Tree Generation process of process id=" +
           str(process_id) + " using Kmer Clustering has ended.")
-    print("Time taken for the process=", time.time() - processStartingTime)
+    print("Time taken for the process = ", time.time() - processStartingTime)
     return True

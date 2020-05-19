@@ -91,7 +91,7 @@ def generate_distance_matrix_using_default_files_view(request):
 
         return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
 
-    else:
+    elif process_type == "KMER":
         process = MatrixProcess(title=title, type=2, status=1, user=user)
 
         try:
@@ -107,6 +107,8 @@ def generate_distance_matrix_using_default_files_view(request):
             return Response(status=HTTP_400_BAD_REQUEST)
 
         return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+    else:
+        return Response({"error": "Wrong process type."}, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -131,58 +133,75 @@ def generate_distance_matrix_view(request):
     # list of dna file names
     dna_files_names = request.data["file_names"]
 
-    # user instance
-    user = User.objects.get(username=request.user)
+    is_default_user = request.data["is_default_user"]
 
-    # directory instance
-    directory = Directory.objects.get(user=user)
+    data = {
+        "title": title,
+        "process_type": process_type,
+        "is_default_user": is_default_user
+    }
 
-    for file_name in dna_files_names:
-        dna_file = None
-        try:
-            dna_file = DNAFile.objects.get(
-                file_name=file_name, is_available=True, directory=directory)
-        except ObjectDoesNotExist:
-            error = file_name + " File Doesn't Exist!"
-            return Response({"error": error}, status=HTTP_400_BAD_REQUEST)
+    serializer = MatrixCreationProcessSerializer(data=data)
+
+    if serializer.is_valid():
+        if is_default_user:
+            user = User.objects.get(username=DEFAULT_USERNAME)
         else:
-            dna_files.append(dna_file)
+            user = User.objects.get(username=request.user)
 
-    # create the process and stores in the database
-    # generate celery task and
-    # add it to the RabbitMQ
+        # directory instance
+        directory = Directory.objects.get(user=user)
 
-    if process_type == "LSH":
-        process = MatrixProcess(title=title, type=1, status=1, user=user)
+        for file_name in dna_files_names:
+            dna_file = None
+            try:
+                dna_file = DNAFile.objects.get(
+                    file_name=file_name, is_available=True, directory=directory)
+            except ObjectDoesNotExist:
+                error = file_name + " File Doesn't Exist!"
+                return Response({"error": error}, status=HTTP_400_BAD_REQUEST)
+            else:
+                dna_files.append(dna_file)
 
-        try:
-            process.save()
-            for dna in dna_files:
-                process.dna_files.add(dna)
+        # create the process and stores in the database
+        # generate celery task and
+        # add it to the RabbitMQ
 
-            # clls the celery task
-            generate_distance_matrix_using_lsh_task.delay(process.id)
-        except Exception as ex:
-            print(ex)
-            return Response(status=HTTP_400_BAD_REQUEST)
+        if process_type == "LSH":
+            process = MatrixProcess(title=title, type=1, status=1, user=user)
 
-        return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+            try:
+                process.save()
+                for dna in dna_files:
+                    process.dna_files.add(dna)
 
+                # clls the celery task
+                generate_distance_matrix_using_lsh_task.delay(
+                    process.id, is_default_user)
+            except Exception as ex:
+                print(ex)
+                return Response(status=HTTP_400_BAD_REQUEST)
+
+            return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+
+        elif process_type == "KMER":
+            process = MatrixProcess(title=title, type=2, status=1, user=user)
+
+            try:
+                process.save()
+                for dna in dna_files:
+                    process.dna_files.add(dna)
+
+                # clls the celery task
+                generate_distance_matrix_using_kmer_task.delay(
+                    process.id, is_default_user)
+            except Exception as ex:
+                print(ex)
+                return Response(status=HTTP_400_BAD_REQUEST)
+
+            return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
     else:
-        process = MatrixProcess(title=title, type=2, status=1, user=user)
-
-        try:
-            process.save()
-            for dna in dna_files:
-                process.dna_files.add(dna)
-
-            # clls the celery task
-            generate_distance_matrix_using_kmer_task.delay(process.id)
-        except Exception as ex:
-            print(ex)
-            return Response(status=HTTP_400_BAD_REQUEST)
-
-        return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
+        return Response({"error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -201,7 +220,10 @@ def phylogenetic_tree_generate_view(request):
     title = request.data["title"]
     process_type = request.data["type"]
 
-    serializer = TreeCreationRequestSerializer(data=request.data)
+    data = request.data
+    data["username"] = str(request.user)
+
+    serializer = TreeCreationRequestSerializer(data=data)
 
     if serializer.is_valid():
         # user instance
@@ -260,7 +282,7 @@ def get_process_matrix_result_view(request):
     username = request.user
 
     data = request.data
-    data["username"] = username
+    data["username"] = str(username)
 
     serializer = MatrixResultRequestSerializer(data=data)
     if serializer.is_valid():
@@ -291,8 +313,12 @@ def get_process_tree_result_view(request):
     """
 
     process_id = request.data['process_id']
+    username = request.user
 
-    serializer = TreeResultRequestSerializer(data=request.data)
+    data = request.data
+    data["username"] = str(username)
+
+    serializer = TreeResultRequestSerializer(data=data)
     if serializer.is_valid():
         process = PhylogeneticTreeProcess.objects.get(id=process_id)
         tree_result = PhylogeneticTreeResult.objects.get(process=process)
@@ -354,20 +380,15 @@ def get_user_processes_view(request):
         matrix_process_list.append(process.get_process_details_as_dict())
 
     for process in tree_processes:
+        tree_creation = PhylogeneticTreeCreation.objects.get(process=process)
 
         process_details = {
             "process_id": process.id,
             "title": process.title,
-            "process_type": process.type,
+            "process_type": TreeProcessType.get_key(process.type),
             "status": process.status,
         }
-
-        tree_creation = PhylogeneticTreeCreation.objects.get(process=process)
-
-        if process.type == 1:
-            process_details["method"] = tree_creation.type
-        else:
-            response["method"] = ""
+        process_details["method"] = ProcessTypes.get_key(tree_creation.type)
 
         tree_proccess_list.append(process_details)
 
@@ -375,24 +396,3 @@ def get_user_processes_view(request):
                 "tree_processes": tree_proccess_list}
 
     return Response(response, status=HTTP_200_OK)
-
-
-@api_view(["GET"])
-def test_view(request):
-
-    # result = Result.objects.get(id=2)
-    # result_2 = result.result.split("\n")
-
-    # final_result = start_kemedoid(result_2[:-1])
-
-    # r = distanceMatrixGenerator(result_2[:-1])
-
-    # process = Process.objects.get(id=3)
-
-    # print(process)
-    # tree = TreeResult(process=process, tree=final_result)
-    # print(tree)
-    # tree.save()
-
-    run_kmer_sh_file("kfmakdm", "jandjfnj")
-    return Response()

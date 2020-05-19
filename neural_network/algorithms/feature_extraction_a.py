@@ -1,6 +1,7 @@
 import ast
 import os
 import numpy as np
+import json
 
 
 def feature_extract(kmer_forests_path, extracted_features_path):
@@ -8,6 +9,7 @@ def feature_extract(kmer_forests_path, extracted_features_path):
     #extracted_features_path = "../extracted_features/"
 
     forest_list = os.listdir(kmer_forests_path)
+
     def nested_ACTG_counting(val, nesting=0):
         if type(val) == dict:
             nesting += 1
@@ -32,12 +34,17 @@ def feature_extract(kmer_forests_path, extracted_features_path):
                                    [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
         print(each_forest)
-        file = open(kmer_forests_path+each_forest, "r")
-        forest_txt = file.read()
-        forest = ast.literal_eval(forest_txt)
+        # file = open(kmer_forests_path+each_forest, "r")
+        # forest_txt = file.read()
+        # forest = ast.literal_eval(forest_txt)
+
+        current_file = open(kmer_forests_path+each_forest, "r")
+        forest = json.loads(current_file.read())
+        current_file.close()
 
         nested_ACTG_counting(forest)
         new_text = open(extracted_features_path+each_forest, 'w')
         new_text.write(str(nested_count_containers))
         new_text.close()
+        forest = None
         # print(char_of_forest)
