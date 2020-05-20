@@ -33,7 +33,7 @@ SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = int(os.environ.get("DEBUG", default=0))
-DEBUG = True
+DEBUG = False
 
 # These are the hosts that the server can run
 ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
@@ -120,23 +120,23 @@ DATABASES = {
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'dna_tree',
+    #     'USER': 'lakshan',
+    #     'PASSWORD': 'lakshan',
+    #     'HOST': 'db',
+    #     'PORT': '5432'
+    # }
+
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dna_tree',
-        'USER': 'lakshan',
-        'PASSWORD': 'lakshan',
-        'HOST': 'db',
-        'PORT': '5432'
+        'NAME': 'phylogenetic',
+        'USER': 'sepgrp29',
+        'PASSWORD': 'njlanjn1nsn',
+        'HOST': '34.71.60.187',
+        'PORT': '',
     }
-
-    # 'default' : {
-    #     'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-    #     'NAME' : 'd98geavavihpqd',
-    #     'USER' : 'ysajeooocpckna',
-    #     'PASSWORD' : 'e8cc34d21c381e31ea8768e25797887de2f4008e07a722278096c62fbafd5a96',
-    #     'HOST' : 'ec2-34-206-252-187.compute-1.amazonaws.com',
-    #     'PORT' : '5432',
-    # }
     # }
 
     # DATABASES = {
@@ -205,6 +205,7 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+# keopOrvbfPBqvPwm
 
 # AWS S3 storage configurations
 
@@ -214,8 +215,8 @@ AWS_STORAGE_BUCKET_NAME = 'dnabank'
 
 # Celery configurations
 
-CELERY_BROKER_URL = 'amqp://rabbitmq'
-# CELERY_BROKER_URL = 'amqp://doxhzspi:cCF_EYXcHYJS6VizGO5oU1MraySohWo9@llama.rmq.cloudamqp.com/doxhzspi'
+# CELERY_BROKER_URL = 'amqp://rabbitmq'
+CELERY_BROKER_URL = 'amqp://rtlggxwy:PUtYsq3EOY-MpTYR9S2QvBS6dMxitzHp@porpoise.rmq.cloudamqp.com/rtlggxwy'
 
 
 # CELERY_BROKER_URL = os.environ.get(

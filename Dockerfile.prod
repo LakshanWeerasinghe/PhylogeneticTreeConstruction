@@ -84,4 +84,4 @@ RUN chmod -R 777 ./dsk
 # RUN adduser -D myuser
 # USER myuser
 
-CMD gunicorn app.wsgi:application --bind 0.0.0.0:$PORT
+CMD ["sh", "entrypoint.sh" ]
