@@ -37,7 +37,7 @@ DEBUG = False
 
 # These are the hosts that the server can run
 ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
-                 '127.0.0.1', 'localhost']
+                 '127.0.0.1', 'localhost', '34.67.62.120']
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
