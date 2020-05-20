@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from pathlib import Path
 import ast
+import json
 
 
 def convert_csv_column_to_list(filename):
@@ -74,14 +75,12 @@ def nested_tree_comparison(dict1, dict2, summ):
             nested_tree_comparison(dict1[k], dict2[k], summ)
 
 
-def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
+def kmer_forest_generation(csv_file_list_path, kmer_forest_path):
     CSVFileList = os.listdir(csv_file_list_path)
     CSVFileList.sort()
     specie_list = []
     time1 = datetime.datetime.now()
     print("started at : "+str(time1))
-    all_dicts = []
-    k_lists = []
     for each_CSV_file in CSVFileList:
 
         specie_name = each_CSV_file.split('_GCF')[0].split('_kmer')[0]
@@ -91,7 +90,6 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         kmer_list = convert_csv_column_to_list(
             csv_file_list_path+each_CSV_file)
 
-        # k_lists.append(kmer_list)
         dict = {}
         time1 = datetime.datetime.now()
 
@@ -105,95 +103,50 @@ def kmer_distance_main(csv_file_list_path, kmer_forest_path, file_dict):
         print("forest construction finished : "+str(time2-time1))
 
         txt_f = open(kmer_forest_path + specie_name + ".txt", 'w+')
-        txt_f.write(str(dict))
+        txt_f.write(json.dumps(dict))
         txt_f.close()
-        # all_dicts.append(dict)
-
-        count = 0
-        for each_kmer in kmer_list:
-            if(has_kmer(dict, each_kmer)):
-                count = count+1
-
-    # time23 = datetime.datetime.now()
-
-    # kmer_similarities = ""
-    # for i in range(0, len(all_dicts)):
-    #     for j in range(i, len(all_dicts)):
-    #         summ = Summer()
-    #         print('Forest comparison Started ', specie_list[i], specie_list[j])
-    #         nested_tree_comparison(all_dicts[i], all_dicts[j], summ)
-
-    #         intersection = (len(k_lists[i]) - summ.summing)
-    #         union = (len(k_lists[j]) + summ.summing)
-
-    #         time33 = datetime.datetime.now()
-    #         print('Forest comparison Finished')
-    #         print('distance', specie_list[i],
-    #               specie_list[j], intersection / union)
-
-    #         new_line = file_dict[specie_list[i]] + ',' + \
-    #             file_dict[specie_list[j]] + ',' + str(intersection/union)+'\n'
-    #         kmer_similarities += new_line
-    #         print('Elapsed time for cosmparison', (time33 - time23))
-    return True
+    return len(kmer_list)
 
 
 def readDict(path):
-    print(path+" Reading Started!")
     current_file = open(path, "r")
-    contents = current_file.read()
-    dictionary = ast.literal_eval(contents)
+    dictionary = json.loads(current_file.read())
     current_file.close()
     return dictionary
 
 
-def comparison_of_forests(csv_file_list_path, kmer_forest_path, file_dict):
+def comparison_of_forests(kmer_forest_path, file_dict):
     time23 = datetime.datetime.now()
     specie_list = []
     k_lists = []
+    all_dicts = []
 
-    CSVFileList = os.listdir(csv_file_list_path)
-    CSVFileList.sort()
-
-    for each_CSV_file in CSVFileList:
-
-        specie_name = each_CSV_file.split('_GCF')[0].split('_kmer')[0]
-        print(specie_name, 'forest construction started')
-
-        kmer_list = convert_csv_column_to_list(
-            csv_file_list_path+each_CSV_file)
-
-        k_lists.append(kmer_list)
-
-    print("KMer List Appending Finished")
-    SpeciesFileList = os.listdir(kmer_forest_path)
-    SpeciesFileList.sort()
-
-    for path in SpeciesFileList:
-        specie_list.append(path.split(".")[0])
+    for key in file_dict:
+        specie_list.append(key.split(".")[0])
+        k_lists.append(int(file_dict[key]))
+        forest_path = kmer_forest_path + key
+        all_dicts.append(readDict(forest_path))
 
     kmer_similarities = ""
 
-    for i in range(0, len(SpeciesFileList)):
-        print(i)
-        i_dict = readDict(kmer_forest_path+SpeciesFileList[i])
-        for j in range(i, len(SpeciesFileList)):
-            j_dict = readDict(kmer_forest_path+SpeciesFileList[j])
+    for i in range(0, len(specie_list)):
+        for j in range(i, len(specie_list)):
+
             summ = Summer()
             print('Forest comparison Started ',
                   specie_list[i], specie_list[j])
-            nested_tree_comparison(i_dict, j_dict, summ)
+            nested_tree_comparison(all_dicts[i], all_dicts[j], summ)
 
-            intersection = (len(k_lists[i]) - summ.summing)
-            union = (len(k_lists[j]) + summ.summing)
+            intersection = (k_lists[i] - summ.summing)
+            union = (k_lists[j] + summ.summing)
 
             time33 = datetime.datetime.now()
             print('Forest comparison Finished')
             print('distance', specie_list[i],
                   specie_list[j], intersection / union)
 
-            new_line = file_dict[specie_list[i]] + ',' + \
-                file_dict[specie_list[j]] + ',' + \
+            new_line = specie_list[i] + ',' + \
+                specie_list[j] + ',' + \
                 str(intersection/union)+'\n'
             kmer_similarities += new_line
             print('Elapsed time for cosmparison', (time33 - time23))

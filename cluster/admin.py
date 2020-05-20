@@ -4,6 +4,6 @@ from .models import *
 
 admin.site.register(MatrixProcess)
 admin.site.register(DNASimilaritiesResult)
-admin.site.register(KMerForestResult)
 admin.site.register(PhylogeneticTreeProcess)
+admin.site.register(PhylogeneticTreeCreation)
 admin.site.register(PhylogeneticTreeResult)

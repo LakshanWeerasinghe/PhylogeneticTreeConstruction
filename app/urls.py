@@ -29,7 +29,9 @@ urlpatterns = [
 
     path('dnaStorage/', include('dna_storage.urls')),
 
-    path('cluster/', include('cluster.urls'))
+    path('cluster/', include('cluster.urls')),
+
+    path('nn/', include('neural_network.urls'))
 
 ]
 # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

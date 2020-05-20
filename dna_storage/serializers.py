@@ -30,6 +30,7 @@ class DirectorySerializer(serializers.ModelSerializer):
 
 
 class DNAFileSerializer(serializers.ModelSerializer):
+    """ Validate the Request of geting a Presigned URL. """
 
     file_name = serializers.CharField(max_length=100)
     object_key = serializers.CharField(max_length=100)
@@ -37,22 +38,25 @@ class DNAFileSerializer(serializers.ModelSerializer):
     size = serializers.IntegerField(required=False)
     directory = serializers.CharField(max_length=100, required=True)
 
-    # file already exist validation
     # file format validation
     def validate_object_key(self, object_key):
 
         if not "fna" == object_key.split('.')[-1]:
-            raise serializers.ValidationError("Can only upload fastar files")
+            raise serializers.ValidationError(
+                "Can only upload fastar files with .fna Extension.")
 
         return object_key
 
+    # validate if the file is already exist.
+    # validate if the sepeies (file_name) is already exist.
     def validate(self, attrs):
 
         directory = Directory.objects.get(id=attrs['directory'])
         dna_files = DNAFile.objects.filter(
             directory=directory, object_key=attrs["object_key"])
         if dna_files.exists():
-            raise serializers.ValidationError("This file already exist!")
+            raise serializers.ValidationError(
+                "This file already in the Storage.")
 
         dnas = DNAFile.objects.filter(
             directory=directory, file_name=attrs["file_name"])
@@ -60,13 +64,15 @@ class DNAFileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This file name already exist.")
         return attrs
 
+    # save the DNA file in db
     def create(self, validated_data):
 
         directory = Directory.objects.get(id=validated_data['directory'])
         is_available = False
 
         dna_file, created = DNAFile.objects.get_or_create(file_name=validated_data['file_name'], object_key=validated_data['object_key'],
-                                                          is_available=is_available, size=2, directory=directory
+                                                          is_available=is_available, size=validated_data[
+                                                              'size'], directory=directory
                                                           )
 
         if created:
@@ -80,24 +86,20 @@ class DNAFileSerializer(serializers.ModelSerializer):
 
 
 class DNAFileUploadedSerializer(serializers.Serializer):
+    """ Validate the Request of DNAFile upload status. """
 
     file_name = serializers.CharField(max_length=100, required=True)
-    is_uploaded = serializers.IntegerField(required=True)
+    is_uploaded = serializers.BooleanField(required=True)
+    directory = serializers.CharField(max_length=200, required=True)
 
     # check file name exist
-    def validate_file_name(self, file_name):
+    def validate(self, attrs):
 
-        dna_file = DNAFile.objects.filter(file_name=file_name)
+        directory = Directory.objects.get(id=attrs['directory'])
+        dna_file = DNAFile.objects.filter(
+            directory=directory, file_name=attrs["file_name"])
         if dna_file.exists():
-            return file_name
+            return attrs
         else:
-            raise serializers.ValidationError("This Doesn't exist")
-
-    # #validate the digit
-    # def validate_is_uploaded(self, is_uploaded):
-
-    #     print(is_uploaded)
-    #     if is_uploaded == 0 :
-    #         return is_uploaded
-    #     else:
-    #         raise serializers.ValidationError("In valid input")
+            raise serializers.ValidationError(
+                "This File Doesn't Exist in the Storage.")

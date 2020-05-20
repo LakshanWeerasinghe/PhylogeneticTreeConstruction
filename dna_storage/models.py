@@ -26,3 +26,9 @@ class DNAFile(models.Model):
 
     def __str__(self):
         return self.file_name
+
+
+class KmerForest(models.Model):
+    location = models.CharField(max_length=250)
+    dna_file = models.ForeignKey(to=DNAFile, on_delete=models.CASCADE)
+    kmer_count = models.IntegerField()
