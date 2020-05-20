@@ -167,8 +167,9 @@ def generate_distance_matrix_view(request):
         # generate celery task and
         # add it to the RabbitMQ
 
+        user1 = User.objects.get(username=request.user)
         if process_type == "LSH":
-            process = MatrixProcess(title=title, type=1, status=1, user=user)
+            process = MatrixProcess(title=title, type=1, status=1, user=user1)
 
             try:
                 process.save()
@@ -185,7 +186,7 @@ def generate_distance_matrix_view(request):
             return Response({"process": process.get_process_details_as_dict()}, status=HTTP_200_OK)
 
         elif process_type == "KMER":
-            process = MatrixProcess(title=title, type=2, status=1, user=user)
+            process = MatrixProcess(title=title, type=2, status=1, user=user1)
 
             try:
                 process.save()
