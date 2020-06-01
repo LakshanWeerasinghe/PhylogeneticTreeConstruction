@@ -53,13 +53,13 @@ class DNAFileSerializer(serializers.ModelSerializer):
 
         directory = Directory.objects.get(id=attrs['directory'])
         dna_files = DNAFile.objects.filter(
-            directory=directory, object_key=attrs["object_key"])
+            directory=directory, object_key=attrs["object_key"], is_available=True)
         if dna_files.exists():
             raise serializers.ValidationError(
                 "This file already in the Storage.")
 
         dnas = DNAFile.objects.filter(
-            directory=directory, file_name=attrs["file_name"])
+            directory=directory, file_name=attrs["file_name"], is_available=True)
         if dnas.exists():
             raise serializers.ValidationError("This file name already exist.")
         return attrs
