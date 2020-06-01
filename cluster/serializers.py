@@ -33,18 +33,6 @@ class MatrixResultRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Distance Matrix Generation is still in Progress")
 
-    def validate(self, attrs):
-        user = User.objects.get(username=attrs["username"])
-        process = MatrixProcess.objects.filter(
-            user=user, id=attrs["process_id"])
-        process_tmp = MatrixProcess.objects.filter(id=attrs["process_id"])
-        if process_tmp.exists():
-            if not process.exists():
-                raise serializers.ValidationError(
-                    "You are not permitted to View the results.")
-
-        return attrs
-
 
 class TreeResultRequestSerializer(serializers.Serializer):
 
@@ -53,7 +41,6 @@ class TreeResultRequestSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=200)
 
     def validate_process_id(self, id):
-
         process = PhylogeneticTreeProcess.objects.filter(id=id)
         if not process.exists():
             raise serializers.ValidationError("This Process Doesn't exists!")
@@ -62,19 +49,6 @@ class TreeResultRequestSerializer(serializers.Serializer):
             if process.status == 1 and process.type == 1:
                 raise serializers.ValidationError(
                     "Phylogenetric Tree creation is still in Progress")
-
-    def validate(self, attrs):
-        user = User.objects.get(username=attrs["username"])
-        process = PhylogeneticTreeProcess.objects.filter(
-            user=user, id=attrs["process_id"])
-        process_tmp = PhylogeneticTreeProcess.objects.filter(
-            id=attrs["process_id"])
-        if process_tmp.exists():
-            if not process.exists():
-                raise serializers.ValidationError(
-                    "You are not permitted to View the results.")
-
-        return attrs
 
 
 class TreeCreationRequestSerializer(serializers.Serializer):

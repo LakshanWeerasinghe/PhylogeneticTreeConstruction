@@ -39,7 +39,7 @@ def generate_distance_matrix_using_default_files_view(request):
     This function is to create Distance Matrix Generation Process For a User from Default DNA Files
     request_params : title: String
     request_params : file_names : List (File names of DNAs)
-    response : Matrix Generation Process details 
+    response : Matrix Generation Process details
 
     """
 
@@ -119,7 +119,7 @@ def generate_distance_matrix_view(request):
     This function is to create Distance Matrix Generation Process For a User for his own DNA files
     request_params : title: String
     request_params : file_names : List (File names of DNAs)
-    response : Matrix Generation Process details 
+    response : Matrix Generation Process details
 
     """
 
@@ -210,10 +210,10 @@ def generate_distance_matrix_view(request):
 def phylogenetic_tree_generate_view(request):
     """
 
-    This function is to create Phylogenetic Tree creation Process For a User 
+    This function is to create Phylogenetic Tree creation Process For a User
     request_params : title: String
     request_params : file_names : List (File names of DNAs)
-    response : Matrix Generation Process details 
+    response : Matrix Generation Process details
 
     """
 
@@ -275,7 +275,7 @@ def get_process_matrix_result_view(request):
 
     This function is to get the Distance Matrix of a Distance Matrix creation Process
     request_params : process_id(Id of the Distance Matrix creation process)
-    response : process & result details 
+    response : process & result details
 
     """
 
@@ -285,8 +285,18 @@ def get_process_matrix_result_view(request):
     data = request.data
     data["username"] = str(username)
 
+    user = User.objects.get(username=data["username"])
+    process_tmp = MatrixProcess.objects.filter(id=data["process_id"])
+    is_permitted = True
+    if process_tmp.exists():
+        process = MatrixProcess.objects.filter(
+            user=user, id=data["process_id"])
+        if not process.exists():
+            error = "You are not permitted to View the results."
+            is_permitted = False
+
     serializer = MatrixResultRequestSerializer(data=data)
-    if serializer.is_valid():
+    if serializer.is_valid() and is_permitted:
         process = MatrixProcess.objects.get(id=process_id)
         result = DNASimilaritiesResult.objects.get(process=process)
         result_similarities = result.result.split("\n")
@@ -299,7 +309,11 @@ def get_process_matrix_result_view(request):
 
         return Response(response, status=HTTP_200_OK)
     else:
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        e = serializer.errors
+        if not is_permitted:
+            print(serializer.errors)
+            e["permission"] = error
+        return Response(e, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -309,18 +323,29 @@ def get_process_tree_result_view(request):
 
     This function is to get the Phylogenetric Tree of a Phylogenetic Tree creation Process
     request_params : process_id(Id of the Phylogenetic Tree creation process)
-    response : process & result details 
+    response : process & result details
 
     """
 
     process_id = request.data['process_id']
     username = request.user
 
-    data = request.data
+    data = {'process_id': process_id}
     data["username"] = str(username)
 
+    user = User.objects.get(username=data["username"])
+    process_tmp = PhylogeneticTreeProcess.objects.filter(
+        id=process_id)
+    is_permitted = True
+    if process_tmp.exists():
+        process = PhylogeneticTreeProcess.objects.filter(
+            user=user, id=data["process_id"])
+        if not process.exists():
+            error = "You are not permitted to View the results."
+            is_permitted = False
+
     serializer = TreeResultRequestSerializer(data=data)
-    if serializer.is_valid():
+    if serializer.is_valid() and is_permitted:
         process = PhylogeneticTreeProcess.objects.get(id=process_id)
         tree_result = PhylogeneticTreeResult.objects.get(process=process)
 
@@ -357,7 +382,11 @@ def get_process_tree_result_view(request):
 
         return Response(response, status=HTTP_200_OK)
     else:
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        e = serializer.errors
+        if not is_permitted:
+            print(serializer.errors)
+            e["permission"] = error
+        return Response(e, status=HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
