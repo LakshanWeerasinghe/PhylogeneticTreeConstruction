@@ -12,33 +12,30 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import django_heroku
+from dotenv import load_dotenv
 
 # Heroku: Update database configuration from $DATABASE_URL.
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, '.env.dev'))
 
 
 # Custom Storage directory
 CUSTOM_STORAGE_OPTIONS = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))) + "/storage"
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '%y(f&q848ae8u)!$f5ys$^eaj6my)hm9f=cz(bvneou&mq=@rb'
-# SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = int(os.environ.get("DEBUG", default=0))
 DEBUG = False
 
 # These are the hosts that the server can run
-ALLOWED_HOSTS = ['phlyogenetic-tree.herokuapp.com',
-                 '127.0.0.1', 'localhost', '34.67.62.120']
-# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -115,39 +112,15 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
 
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'dna_tree',
-    #     'USER': 'lakshan',
-    #     'PASSWORD': 'lakshan',
-    #     'HOST': 'db',
-    #     'PORT': '5432'
-    # }
-
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'phylogenetic',
-        'USER': 'sepgrp29',
-        'PASSWORD': 'njlanjn1nsn',
-        'HOST': '34.71.60.187',
-        'PORT': '',
+    "default": {
+        "ENGINE": os.getenv("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.getenv("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.getenv("SQL_USER"),
+        "PASSWORD": os.getenv("SQL_PASSWORD"),
+        "HOST": os.getenv("SQL_HOST"),
+        "PORT": os.getenv("SQL_PORT")
     }
-    # }
-
-    # DATABASES = {
-    #     "default": {
-    #         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-    #         "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
-    #         "USER": os.environ.get("SQL_USER", "user"),
-    #         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-    #         "HOST": os.environ.get("SQL_HOST", "localhost"),
-    #         "PORT": os.environ.get("SQL_PORT", "5432"),
-    #     }
 }
 
 #db_from_env = dj_database_url.config(conn_max_age=500)
@@ -209,24 +182,20 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # AWS S3 storage configurations
 
-AWS_ACCESS_KEY_ID = 'AKIA35HYTNT635SBY2CI'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'dnabank'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
 # Celery configurations
 
-# CELERY_BROKER_URL = 'amqp://rabbitmq'
-CELERY_BROKER_URL = 'amqp://rtlggxwy:PUtYsq3EOY-MpTYR9S2QvBS6dMxitzHp@porpoise.rmq.cloudamqp.com/rtlggxwy'
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 
-
-# CELERY_BROKER_URL = os.environ.get(
-# 'CELERY_BROKER_URL', default='amqp://rabbitmq')
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
-DEFAULT_USERNAME = "defaultuser"
+DEFAULT_USERNAME = os.getenv('DEFAULT_USERNAME')
 
 django_heroku.settings(locals())
