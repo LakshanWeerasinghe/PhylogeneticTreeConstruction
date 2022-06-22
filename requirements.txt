@@ -30,7 +30,7 @@ kiwisolver==1.2.0
 kombu==4.6.8
 Markdown==3.2.1
 matplotlib==3.2.1
-numpy==1.18.2
+numpy==1.22.0
 pandas==1.0.3
 psycopg2==2.8.4
 pyasn1==0.4.8
